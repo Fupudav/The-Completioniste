@@ -1,4 +1,4 @@
-window.TC_RAW_CATALOG = [
+export const RAW_CATALOG = [
   {
     category: "RPG occidentaux",
     sagas: [

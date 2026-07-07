@@ -1,0 +1,10 @@
+{
+  "name": "the-completioniste",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check assets/js/app.js && node --check assets/data/hltb-times.js && node --check assets/data/catalog.js && node --check service-worker.js && npm test"
+  }
+}

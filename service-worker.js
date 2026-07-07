@@ -1,4 +1,4 @@
-const CACHE_NAME = "the-completioniste-v2";
+const CACHE_NAME = "the-completioniste-v3";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -7,6 +7,17 @@ const APP_SHELL = [
   "./assets/data/hltb-times.js",
   "./assets/data/catalog.js",
   "./assets/js/app.js",
+  "./assets/js/catalog.js",
+  "./assets/js/constants.js",
+  "./assets/js/diagnostics.js",
+  "./assets/js/dialogs.js",
+  "./assets/js/filters.js",
+  "./assets/js/pwa.js",
+  "./assets/js/render.js",
+  "./assets/js/state.js",
+  "./assets/js/stats.js",
+  "./assets/js/templates.js",
+  "./assets/js/utils.js",
   "./assets/icons/icon-192.png",
   "./assets/icons/icon-512.png",
   "./assets/icons/maskable-512.png"

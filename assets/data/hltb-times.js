@@ -1,5 +1,5 @@
-window.TC_HLTB_UPDATED_AT = "2026-07-06";
-window.TC_HLTB_TIMES = {
+export const HLTB_UPDATED_AT = "2026-07-06";
+export const HLTB_TIMES = {
       "action-aventure-batman-arkham-batman-arkham-asylum-2009-principal-0": {
             "hltbId": 881,
             "name": "Batman: Arkham Asylum",
