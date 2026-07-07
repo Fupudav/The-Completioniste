@@ -885,6 +885,15 @@
       background: var(--panel);
     }
 
+    .dialog-section-title {
+      margin: 4px 0 -2px;
+      color: var(--muted);
+      font-size: .74rem;
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+
     .dialog-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1488,6 +1497,27 @@
         <div class="field">
           <label for="editCoverUrl">URL de jaquette</label>
           <input id="editCoverUrl" name="coverUrl" type="url" placeholder="https://...">
+        </div>
+        <h4 class="dialog-section-title">Temps HowLongToBeat</h4>
+        <div class="dialog-grid">
+          <div class="field">
+            <label for="editHltbMain">Histoire (h)</label>
+            <input id="editHltbMain" name="hltbMain" type="number" min="0" step="0.25" inputmode="decimal">
+          </div>
+          <div class="field">
+            <label for="editHltbExtra">Annexes (h)</label>
+            <input id="editHltbExtra" name="hltbExtra" type="number" min="0" step="0.25" inputmode="decimal">
+          </div>
+        </div>
+        <div class="dialog-grid">
+          <div class="field">
+            <label for="editHltbComplete">100% (h)</label>
+            <input id="editHltbComplete" name="hltbComplete" type="number" min="0" step="0.25" inputmode="decimal">
+          </div>
+          <div class="field">
+            <label for="editHltbId">ID HowLongToBeat</label>
+            <input id="editHltbId" name="hltbId" inputmode="numeric" placeholder="ex: 12345">
+          </div>
         </div>
       </div>
       <div class="dialog-actions">
@@ -14236,6 +14266,10 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
       editScope: document.querySelector("#editScope"),
       editPlatforms: document.querySelector("#editPlatforms"),
       editCoverUrl: document.querySelector("#editCoverUrl"),
+      editHltbMain: document.querySelector("#editHltbMain"),
+      editHltbExtra: document.querySelector("#editHltbExtra"),
+      editHltbComplete: document.querySelector("#editHltbComplete"),
+      editHltbId: document.querySelector("#editHltbId"),
       categoryList: document.querySelector("#categoryList"),
       sagaDatalist: document.querySelector("#sagaDatalist")
     };
@@ -14320,6 +14354,25 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
       const id = game.id || slugify(`${category}-${saga}-${title}-${year}-${scope}-${gameIndex}`);
       const override = state.overrides?.[id] || {};
       const platforms = game.platforms || "";
+      const baseHltb = HLTB_TIMES[id] || null;
+      const hltbOverride = override.hltb || {};
+      const hasHltbOverride = Object.keys(hltbOverride).length > 0;
+      const hltb = (baseHltb || hasHltbOverride)
+        ? {
+            hltbId: "",
+            name: title,
+            main: 0,
+            extra: 0,
+            complete: 0,
+            mainCount: 0,
+            extraCount: 0,
+            completeCount: 0,
+            ...(baseHltb || {}),
+            ...hltbOverride,
+            hltbId: hltbOverride.hltbId || baseHltb?.hltbId || "",
+            name: hltbOverride.name || baseHltb?.name || title
+          }
+        : null;
       return {
         id,
         baseTitle: title,
@@ -14334,7 +14387,8 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
         category,
         saga,
         custom,
-        hltb: HLTB_TIMES[id] || null,
+        hltb,
+        hltbCustom: hasHltbOverride,
         order: gameIndex,
         sagaIndex
       };
@@ -14779,13 +14833,16 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
       if (!hltb) return `<div class="hltb-times empty"><span>HLTB n/d</span></div>`;
       const votes = (hltb.mainCount || 0) + (hltb.extraCount || 0) + (hltb.completeCount || 0);
       const confidence = votes < 5 ? " low-confidence" : "";
-      const url = `https://howlongtobeat.com/game/${hltb.hltbId}`;
+      const hltbBadge = hltb.hltbId
+        ? `<a href="https://howlongtobeat.com/game/${escapeAttr(hltb.hltbId)}" target="_blank" rel="noreferrer">HLTB</a>`
+        : `<span>HLTB</span>`;
       return `
         <div class="hltb-times${confidence}" title="Données HowLongToBeat, mises à jour le ${HLTB_UPDATED_AT}">
-          <a href="${url}" target="_blank" rel="noreferrer">HLTB</a>
+          ${hltbBadge}
           <span>Hist. ${formatHltbTime(hltb.main)}</span>
           <span>Ann. ${formatHltbTime(hltb.extra)}</span>
           <span>100% ${formatHltbTime(hltb.complete)}</span>
+          ${game.hltbCustom ? `<span>Perso</span>` : ""}
           ${votes ? `<span>${votes} votes</span>` : ""}
         </div>
       `;
@@ -14835,6 +14892,19 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
       if (!seconds) return "0 h";
       const hours = Math.round(seconds / 3600);
       return `${hours.toLocaleString("fr-FR")} h`;
+    }
+
+    function secondsToHoursInput(seconds) {
+      if (!seconds) return "";
+      const rounded = Math.round((seconds / 3600) * 4) / 4;
+      return String(rounded);
+    }
+
+    function hoursInputToSeconds(value) {
+      const normalized = String(value || "").trim().replace(",", ".");
+      if (!normalized) return 0;
+      const hours = Number.parseFloat(normalized);
+      return Number.isFinite(hours) && hours > 0 ? Math.round(hours * 3600) : 0;
     }
 
     function gameTemplate(game) {
@@ -14983,6 +15053,10 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
       refs.editScope.value = game.scope;
       refs.editPlatforms.value = game.platforms;
       refs.editCoverUrl.value = game.coverUrl || "";
+      refs.editHltbMain.value = secondsToHoursInput(game.hltb?.main);
+      refs.editHltbExtra.value = secondsToHoursInput(game.hltb?.extra);
+      refs.editHltbComplete.value = secondsToHoursInput(game.hltb?.complete);
+      refs.editHltbId.value = game.hltb?.hltbId || "";
       refs.editDialog.showModal();
       refs.editTitle.focus();
     }
@@ -14992,13 +15066,29 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
       const gameId = refs.editGameId.value;
       const game = allGames.find((item) => item.id === gameId);
       if (!game) return;
-      state.overrides[gameId] = {
+      const hltbOverride = {
+        hltbId: refs.editHltbId.value.trim(),
+        main: hoursInputToSeconds(refs.editHltbMain.value),
+        extra: hoursInputToSeconds(refs.editHltbExtra.value),
+        complete: hoursInputToSeconds(refs.editHltbComplete.value)
+      };
+      const baseHltb = HLTB_TIMES[gameId] || null;
+      const hltbHasValue = Boolean(hltbOverride.hltbId || hltbOverride.main || hltbOverride.extra || hltbOverride.complete);
+      const hltbChanged = baseHltb
+        ? hltbOverride.hltbId !== String(baseHltb.hltbId || "")
+          || hltbOverride.main !== (baseHltb.main || 0)
+          || hltbOverride.extra !== (baseHltb.extra || 0)
+          || hltbOverride.complete !== (baseHltb.complete || 0)
+        : hltbHasValue;
+      const gameOverride = {
         title: refs.editTitle.value.trim() || game.baseTitle || game.title,
         year: refs.editYear.value.trim() || game.baseYear || game.year,
         scope: refs.editScope.value || game.baseScope || game.scope,
         platforms: refs.editPlatforms.value.trim(),
         coverUrl: refs.editCoverUrl.value.trim()
       };
+      if (hltbChanged) gameOverride.hltb = hltbOverride;
+      state.overrides[gameId] = gameOverride;
       saveState();
       refs.editDialog.close();
       hydrateCatalog();
