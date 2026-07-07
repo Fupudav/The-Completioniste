@@ -1,7 +1,10 @@
 export const STORAGE_KEY = "completion-saga-tracker-v1";
 export const BACKUP_STORAGE_KEY = "completion-saga-tracker-backups-v1";
-export const STATE_VERSION = 2;
+export const STATE_VERSION = 3;
 export const MAX_BACKUPS = 12;
+export const DEFAULT_PROFILE_ID = "default";
+export const DEFAULT_PROFILE_NAME = "Moi";
+export const HISTORY_LIMIT = 60;
 
 export const STATUS_LABELS = {
   todo: "À faire",
@@ -30,6 +33,19 @@ export const SCOPE_LABELS = {
   upcoming: "À venir"
 };
 
+export const SORT_LABELS = {
+  catalog: "Catalogue",
+  progressAsc: "Progression basse",
+  progressDesc: "Progression haute",
+  name: "Nom",
+  year: "Année",
+  hltbDesc: "Durée 100% haute",
+  hltbAsc: "Durée 100% basse",
+  priority: "Priorité",
+  hltbRemaining: "Temps restant",
+  lastUpdated: "Dernière modification"
+};
+
 export const DEFAULT_FILTERS = {
   search: "",
   category: "all",
@@ -52,5 +68,6 @@ export const DEFAULT_PROGRESS = {
   platform: "",
   hours: "",
   rating: "",
-  notes: ""
+  notes: "",
+  updatedAt: ""
 };

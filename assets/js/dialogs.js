@@ -26,6 +26,11 @@ export function addCustomGame(event, context) {
 
   if (!custom.saga || !custom.title) return;
   state.custom.push(custom);
+  context.recordHistory?.({
+    type: "custom",
+    label: `Jeu ajouté : ${custom.title}`,
+    saga: custom.saga
+  });
   context.persist();
   refs.gameDialog.close();
   context.refreshCatalog();
@@ -79,6 +84,14 @@ export function saveGameEdits(event, context) {
   };
   if (hltbChanged) gameOverride.hltb = hltbOverride;
   state.overrides[gameId] = gameOverride;
+  context.touchGame?.(gameId);
+  context.recordHistory?.({
+    type: "edit",
+    label: `Fiche modifiée : ${game.title}`,
+    gameId,
+    saga: game.saga,
+    detail: hltbChanged ? "Fiche + HLTB" : "Fiche"
+  });
 
   context.persist();
   refs.editDialog.close();
@@ -115,9 +128,11 @@ export function importData(event, context) {
 
 export function resetData(context) {
   if (!confirm("Effacer toute la progression, les notes et les jeux ajoutés ?")) return;
+  const snapshot = context.createUndoSnapshot?.();
   context.replaceState();
   context.persist({ backup: false });
   context.refreshCatalog();
+  if (snapshot) context.showUndo?.("Progression réinitialisée", snapshot);
 }
 
 export function fillScopeSelects(refs) {

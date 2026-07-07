@@ -1,5 +1,5 @@
-import { STATUS_LABELS } from "./constants.js";
-import { getProgress, listBackups } from "./state.js";
+import { DEFAULT_FILTERS, SCOPE_LABELS, SORT_LABELS, STATUS_LABELS } from "./constants.js";
+import { getProfiles, getProgress, listBackups } from "./state.js";
 import { escapeHtml, formatHoursShort } from "./utils.js";
 import { getGameStats, getHltbStats } from "./stats.js";
 import {
@@ -7,20 +7,24 @@ import {
   dashboardCard,
   diagnosticsTemplate,
   gameTemplate,
+  historyListTemplate,
   sagaTemplate,
   statBar,
   statTemplate
 } from "./templates.js";
 import { buildDiagnostics } from "./diagnostics.js";
-import { getVisibleGames, getVisibleSagas } from "./filters.js";
+import { getNextBacklogGame, getVisibleGames, getVisibleSagas, sortGames } from "./filters.js";
 
 export function renderApp(context) {
   const visibleSagas = getVisibleSagas(context.catalog, context.filters, context.state);
   renderStats(context);
   renderSidebar(context);
+  renderActiveFilters(context);
   renderCatalog(context, visibleSagas);
   renderFlatGames(context, visibleSagas);
   renderStatsDashboard(context);
+  renderProfiles(context);
+  renderHistory(context);
   renderBackups(context);
   renderDiagnostics(context);
 }
@@ -60,13 +64,42 @@ export function renderSidebar(context) {
     </div>
   `).join("");
 
+  const suggested = getNextBacklogGame(context.allGames, state);
   const nextItems = context.allGames
     .filter((game) => getProgress(state, game.id).next)
-    .slice(0, 8);
+    .filter((game, index, items) => items.findIndex((item) => item.id === game.id) === index)
+    .slice(0, 7);
+  const sidebarItems = suggested && !nextItems.some((game) => game.id === suggested.id)
+    ? [suggested, ...nextItems]
+    : nextItems;
 
-  refs.nextList.innerHTML = nextItems.length
-    ? nextItems.map((game) => `<div class="next-item">${escapeHtml(game.title)}<span>${escapeHtml(game.saga)} · ${escapeHtml(game.year)}</span></div>`).join("")
-    : `<div class="next-item">Aucune cible sélectionnée<span>Utilise le repère dans une ligne de jeu.</span></div>`;
+  refs.nextList.innerHTML = sidebarItems.length
+    ? sidebarItems.map((game, index) => `<div class="next-item">${escapeHtml(game.title)}<span>${index === 0 && game.id === suggested?.id ? "Suggestion auto" : "Cible"} · ${escapeHtml(game.saga)} · ${escapeHtml(game.year)}</span></div>`).join("")
+    : `<div class="next-item">Aucune cible disponible<span>Ajoute une priorité, une cible ou un jeu en cours.</span></div>`;
+}
+
+export function renderActiveFilters(context) {
+  const { filters, refs } = context;
+  if (!refs.activeFilters) return;
+  const chips = [];
+  if (filters.search) chips.push(`Recherche: ${filters.search}`);
+  if (filters.category !== "all") chips.push(`Genre: ${filters.category}`);
+  if (filters.status !== "all") chips.push(`Statut: ${STATUS_LABELS[filters.status] || filters.status}`);
+  if (filters.scope !== "all") chips.push(`Type: ${SCOPE_LABELS[filters.scope] || filters.scope}`);
+  if (filters.sort !== DEFAULT_FILTERS.sort) chips.push(`Tri: ${SORT_LABELS[filters.sort] || filters.sort}`);
+  if (filters.hideDone) chips.push("Masque terminés");
+  if (filters.hideUpcoming) chips.push("Masque à venir");
+  if (filters.onlyOwned) chips.push("Possédés");
+  if (filters.onlyNext) chips.push("Cibles");
+
+  refs.activeFilters.innerHTML = chips.length
+    ? `
+      <div class="active-filter-chips">
+        ${chips.map((label) => `<span class="filter-chip">${escapeHtml(label)}</span>`).join("")}
+      </div>
+      <button class="btn small" type="button" data-action="reset-filters">Réinitialiser les filtres</button>
+    `
+    : `<span class="active-filter-empty">Aucun filtre actif · catalogue complet visible</span>`;
 }
 
 export function renderCatalog(context, visibleSagas) {
@@ -84,7 +117,7 @@ export function renderCatalog(context, visibleSagas) {
 }
 
 export function renderFlatGames(context, visibleSagas) {
-  const games = getVisibleGames(visibleSagas);
+  const games = sortGames(getVisibleGames(visibleSagas), context.filters, context.state);
   context.refs.flatCatalogMeta.textContent = `${games.length} jeux`;
   if (context.activeTab !== "games") {
     context.refs.flatGameList.innerHTML = "";
@@ -93,6 +126,19 @@ export function renderFlatGames(context, visibleSagas) {
   context.refs.flatGameList.innerHTML = games.length
     ? games.map((game) => gameTemplate(game, context)).join("")
     : `<div class="empty">Aucun jeu ne correspond aux filtres actifs.</div>`;
+}
+
+export function renderProfiles(context) {
+  const { refs, state } = context;
+  if (!refs.profileSelect) return;
+  refs.profileSelect.innerHTML = getProfiles(state).map((profile) => (
+    `<option value="${profile.id}" ${profile.id === state.activeProfileId ? "selected" : ""}>${escapeHtml(profile.name)}</option>`
+  )).join("");
+}
+
+export function renderHistory(context) {
+  if (!context.refs.historyList) return;
+  context.refs.historyList.innerHTML = historyListTemplate(context.state.history);
 }
 
 export function renderStatsDashboard(context) {
