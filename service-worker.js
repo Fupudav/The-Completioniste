@@ -1,11 +1,15 @@
-const CACHE_NAME = "the-completioniste-v1";
+const CACHE_NAME = "the-completioniste-v2";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png",
-  "./icons/maskable-512.png"
+  "./assets/styles/app.css",
+  "./assets/data/hltb-times.js",
+  "./assets/data/catalog.js",
+  "./assets/js/app.js",
+  "./assets/icons/icon-192.png",
+  "./assets/icons/icon-512.png",
+  "./assets/icons/maskable-512.png"
 ];
 
 self.addEventListener("install", (event) => {
