@@ -204,11 +204,34 @@
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 9 4-4 4 4"></path><path d="m8 15 4 4 4-4"></path></svg>
                 Sagas
               </button>
+              <button class="btn" id="settingsBackupBtn" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
+                Snapshot
+              </button>
               <button class="btn danger" id="settingsResetBtn" type="button">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m10 11 .5 6"></path><path d="m14 11-.5 6"></path><path d="M6 6l1 15h10l1-15"></path></svg>
                 Reset
               </button>
             </div>
+          </section>
+          <section class="view-panel">
+            <div class="panel-head">
+              <div>
+                <h3>Sauvegardes locales</h3>
+                <p>Snapshots datés créés automatiquement et manuellement.</p>
+              </div>
+              <span class="catalog-meta" id="backupMeta"></span>
+            </div>
+            <div class="stack-list" id="backupList"></div>
+          </section>
+          <section class="view-panel">
+            <div class="panel-head">
+              <div>
+                <h3>Diagnostic des données</h3>
+                <p>Contrôle du catalogue, des doublons et des liens HLTB.</p>
+              </div>
+            </div>
+            <div class="diagnostic-list" id="diagnosticsPanel"></div>
           </section>
         </div>
       </section>
@@ -319,8 +342,6 @@
     </form>
   </dialog>
 
-  <script src="assets/data/hltb-times.js"></script>
-  <script src="assets/data/catalog.js"></script>
-  <script src="assets/js/app.js"></script>
+  <script type="module" src="assets/js/app.js"></script>
 </body>
 </html>
