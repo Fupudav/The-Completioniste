@@ -83,6 +83,16 @@
           <div class="eyebrow">Jeux principaux, spin-offs majeurs et remakes</div>
           <h2>Suivi de completion par saga</h2>
           <p>Marque ton niveau de completion, tes jeux en cours, tes favoris, tes plateformes, tes notes et les prochaines cibles de backlog. La progression reste dans ce navigateur.</p>
+          <div class="hero-actions" aria-label="Raccourcis de parcours">
+            <button class="btn primary" id="continueBtn" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4v16l14-8Z"></path></svg>
+              <span>Continuer mon backlog</span>
+            </button>
+            <button class="btn" id="playingBtn" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h10"></path></svg>
+              Jeux en cours
+            </button>
+          </div>
         </div>
         <div class="hero-meter" id="overallMeter" aria-label="Progression globale">
           <div>
@@ -110,6 +120,8 @@
           Paramètres
         </button>
       </nav>
+
+      <div class="active-filters" id="activeFilters" aria-live="polite"></div>
 
       <section class="app-view active" data-view="sagas" aria-label="Sagas">
       <section class="filters" aria-label="Filtres du catalogue">
@@ -146,6 +158,9 @@
             <option value="year">Année du premier jeu</option>
             <option value="hltbDesc">Durée 100% haute</option>
             <option value="hltbAsc">Durée 100% basse</option>
+            <option value="priority">Priorité</option>
+            <option value="hltbRemaining">Temps restant</option>
+            <option value="lastUpdated">Dernière modification</option>
           </select>
         </div>
       </section>
@@ -187,6 +202,7 @@
                 <p>Données stockées dans ce navigateur.</p>
               </div>
             </div>
+            <p class="settings-warning">La progression est locale : vider les données du navigateur, changer d'appareil ou utiliser un autre navigateur peut la rendre inaccessible. Crée un snapshot ou exporte le JSON avant toute opération risquée.</p>
             <div class="settings-actions">
               <button class="btn primary" id="settingsAddGameBtn" type="button">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
@@ -217,12 +233,39 @@
           <section class="view-panel">
             <div class="panel-head">
               <div>
+                <h3>Profils</h3>
+                <p>Sépare une progression principale, Steam Deck, console ou autre contexte.</p>
+              </div>
+            </div>
+            <div class="profile-tools">
+              <div class="field">
+                <label for="profileSelect">Profil actif</label>
+                <select id="profileSelect"></select>
+              </div>
+              <button class="btn" id="profileAddBtn" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+                Ajouter un profil
+              </button>
+            </div>
+          </section>
+          <section class="view-panel">
+            <div class="panel-head">
+              <div>
                 <h3>Sauvegardes locales</h3>
                 <p>Snapshots datés créés automatiquement et manuellement.</p>
               </div>
               <span class="catalog-meta" id="backupMeta"></span>
             </div>
             <div class="stack-list" id="backupList"></div>
+          </section>
+          <section class="view-panel">
+            <div class="panel-head">
+              <div>
+                <h3>Historique récent</h3>
+                <p>Dernières modifications du profil actif.</p>
+              </div>
+            </div>
+            <div class="stack-list" id="historyList"></div>
           </section>
           <section class="view-panel">
             <div class="panel-head">
@@ -314,6 +357,7 @@
           <input id="editCoverUrl" name="coverUrl" type="url" placeholder="https://...">
         </div>
         <h4 class="dialog-section-title">Temps HowLongToBeat</h4>
+        <p class="field-hint">Valeurs en heures décimales. Les temps de base viennent de HowLongToBeat ; les champs renseignés ici remplacent localement l'histoire principale, histoire + annexes et 100% pour ce navigateur/profil.</p>
         <div class="dialog-grid">
           <div class="field">
             <label for="editHltbMain">Histoire (h)</label>
@@ -341,6 +385,8 @@
       </div>
     </form>
   </dialog>
+
+  <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="true"></div>
 
   <script type="module" src="assets/js/app.js"></script>
 </body>

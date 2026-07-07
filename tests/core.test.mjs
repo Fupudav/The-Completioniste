@@ -6,11 +6,14 @@ import { buildDiagnostics } from "../assets/js/diagnostics.js";
 import {
   createBackup,
   createExportPayload,
+  createProfile,
   importStatePayload,
   listBackups,
   migrateState,
+  recordHistory,
   restoreBackup,
-  saveState
+  saveState,
+  setActiveProfile
 } from "../assets/js/state.js";
 
 class MemoryStorage {
@@ -70,7 +73,8 @@ test("catalog hydration applies title and HLTB overrides", () => {
 test("state migration, export, import and backups preserve progress", () => {
   const storage = new MemoryStorage();
   const state = migrateState({ progress: { game: { status: "done", completion: "story" } } });
-  assert.equal(state.version, 2);
+  assert.equal(state.version, 3);
+  assert.equal(state.activeProfileId, "default");
 
   saveState(state, storage, { backup: false });
   const payload = createExportPayload(state);
@@ -82,6 +86,20 @@ test("state migration, export, import and backups preserve progress", () => {
   assert.equal(backups.length, 1);
   const restored = restoreBackup(storage, backups[0].id);
   assert.equal(restored.progress.game.completion, "story");
+});
+
+test("profiles keep separate progress and history", () => {
+  const state = migrateState({ progress: { game: { status: "done" } } });
+  createProfile(state, "Steam Deck");
+  state.progress.game = { status: "playing" };
+  recordHistory(state, { label: "Steam Deck change" }, new Date("2026-07-07T10:00:00.000Z"));
+
+  assert.equal(state.progress.game.status, "playing");
+  assert.equal(state.history.length, 1);
+
+  setActiveProfile(state, "default");
+  assert.equal(state.progress.game.status, "done");
+  assert.equal(state.history.length, 0);
 });
 
 test("diagnostics detect missing HLTB and duplicate ids", () => {

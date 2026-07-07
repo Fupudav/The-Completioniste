@@ -14,16 +14,18 @@ export function sagaTemplate(saga, context) {
   const shown = saga.games.length;
   const defaultCollapsed = filters.search ? false : true;
   const collapsed = state.collapsed[saga.name] ?? defaultCollapsed;
+  const pinned = state.pinnedSagas?.includes(saga.name);
   const scopeCounts = Object.entries(countBy(allSagaGames, "scope"))
     .sort((a, b) => b[1] - a[1])
     .slice(0, 4);
 
   return `
-    <article class="saga-card ${collapsed ? "collapsed" : ""}">
+    <article class="saga-card ${collapsed ? "collapsed" : ""} ${pinned ? "pinned" : ""}">
       <button class="saga-head" type="button" data-action="toggle-saga" data-saga="${escapeAttr(saga.name)}" aria-expanded="${!collapsed}">
         <div class="saga-title">
           <strong>${escapeHtml(saga.name)}</strong>
           <div class="chips">
+            ${pinned ? `<span class="chip"><i style="--chip:#ca7a23"></i>Épinglée</span>` : ""}
             <span class="chip"><i></i>${escapeHtml(saga.category)}</span>
             <span class="chip">${stats.done}/${stats.total} terminés</span>
             ${scopeCounts.map(([scope, count]) => `<span class="chip ${escapeAttr(scope)}"><i></i>${SCOPE_LABELS[scope] || scope} · ${count}</span>`).join("")}
@@ -40,6 +42,10 @@ export function sagaTemplate(saga, context) {
       ${collapsed ? "" : `
       <div class="saga-body">
         <div class="saga-tools">
+          <button class="btn" type="button" data-action="pin-saga" data-saga="${escapeAttr(saga.name)}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17v5"></path><path d="M5 17h14"></path><path d="m8 17 1-9-2-5h10l-2 5 1 9"></path></svg>
+            ${pinned ? "Désépingler" : "Épingler"}
+          </button>
           <button class="btn" type="button" data-action="batch-story" data-saga="${escapeAttr(saga.name)}">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg>
             Tout histoire
@@ -192,6 +198,21 @@ export function backupListTemplate(backups) {
         <span>${backup.reason === "auto" ? "Automatique" : "Manuelle"} · état ${escapeHtml(backup.savedAt || "n/d")}</span>
       </div>
       <button class="btn" type="button" data-action="restore-backup" data-backup-id="${escapeAttr(backup.id)}">Restaurer</button>
+    </div>
+  `).join("");
+}
+
+export function historyListTemplate(history = []) {
+  if (!history.length) {
+    return `<div class="empty small">Aucune modification enregistrée pour ce profil.</div>`;
+  }
+  return history.slice(0, 20).map((item) => `
+    <div class="history-item">
+      <div>
+        <strong>${escapeHtml(item.label)}</strong>
+        <span>${escapeHtml(new Date(item.at).toLocaleString("fr-FR"))}${item.detail ? ` · ${escapeHtml(item.detail)}` : ""}</span>
+      </div>
+      ${item.saga ? `<span class="chip">${escapeHtml(item.saga)}</span>` : ""}
     </div>
   `).join("");
 }
