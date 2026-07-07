@@ -3,6 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#252a31">
+  <meta name="application-name" content="The Completioniste">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="The Completioniste">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
   <title>The Completioniste</title>
   <style>
     :root {
@@ -15220,6 +15227,14 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
 
     function escapeAttr(value = "") {
       return escapeHtml(value);
+    }
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").catch((error) => {
+          console.warn("Service worker registration failed", error);
+        });
+      });
     }
   </script>
 </body>
