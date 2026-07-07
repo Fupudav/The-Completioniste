@@ -14563,7 +14563,18 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
         const games = saga.games.filter((game) => {
           const entry = getProgress(game.id);
           const status = entry.status;
-          const haystack = `${game.title} ${game.year} ${game.scope} ${game.platforms} ${game.saga} ${game.category} ${entry.notes || ""}`.toLowerCase();
+          const haystack = [
+            game.title,
+            game.year,
+            game.scope,
+            game.platforms,
+            game.saga,
+            game.category,
+            entry.notes || "",
+            acronym(game.title),
+            acronym(game.saga),
+            acronym(game.category)
+          ].join(" ").toLowerCase();
           if (filters.category !== "all" && game.category !== filters.category) return false;
           if (filters.status !== "all" && status !== filters.status) return false;
           if (filters.scope !== "all" && game.scope !== filters.scope) return false;
@@ -15095,6 +15106,17 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)/g, "");
+    }
+
+    function acronym(value = "") {
+      return String(value)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .split(/[^a-zA-Z0-9]+/)
+        .filter(Boolean)
+        .map((word) => word[0])
+        .join("")
+        .toLowerCase();
     }
 
     function escapeHtml(value = "") {
