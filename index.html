@@ -7,12 +7,12 @@
   <style>
     :root {
       color-scheme: light;
-      --bg: #f4f1e9;
-      --panel: #fffdf8;
-      --panel-2: #ebe6dc;
+      --bg: #f5f7f4;
+      --panel: #ffffff;
+      --panel-2: #eef2ed;
       --ink: #22252c;
       --muted: #696f78;
-      --line: #d9d2c6;
+      --line: #d6ded7;
       --accent: #0f766e;
       --accent-2: #ca7a23;
       --accent-3: #475aa8;
@@ -187,7 +187,7 @@
       justify-content: center;
       gap: 8px;
       border: 1px solid var(--line);
-      background: #fffaf2;
+      background: #fbfcf8;
       color: var(--ink);
       border-radius: var(--radius);
       padding: 8px 12px;
@@ -900,6 +900,210 @@
       background: #fffaf2;
     }
 
+    .app-tabs {
+      position: sticky;
+      top: 0;
+      z-index: 6;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin: 0 0 14px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .88);
+      box-shadow: 0 10px 28px rgba(32, 39, 34, .08);
+      backdrop-filter: blur(14px);
+    }
+
+    .tab-btn {
+      min-height: 42px;
+      display: inline-grid;
+      grid-auto-flow: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--muted);
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .tab-btn svg {
+      width: 17px;
+      height: 17px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .tab-btn.active {
+      background: #252a31;
+      border-color: #252a31;
+      color: #fffaf0;
+    }
+
+    .app-view {
+      display: none;
+    }
+
+    .app-view.active {
+      display: block;
+    }
+
+    .view-panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .9);
+      box-shadow: 0 10px 28px rgba(32, 39, 34, .07);
+      padding: 16px;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .panel-head h3 {
+      font-size: 1.05rem;
+      line-height: 1.2;
+    }
+
+    .panel-head p {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: .88rem;
+      line-height: 1.4;
+    }
+
+    .flat-game-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .stats-dashboard,
+    .settings-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .dashboard-cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .dashboard-card {
+      min-height: 90px;
+      display: grid;
+      align-content: space-between;
+      gap: 10px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfcf8;
+    }
+
+    .dashboard-card strong {
+      font-size: 1.45rem;
+      line-height: 1;
+    }
+
+    .dashboard-card span {
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.25;
+    }
+
+    .stat-bars {
+      display: grid;
+      gap: 10px;
+    }
+
+    .stat-bar {
+      display: grid;
+      grid-template-columns: minmax(130px, 220px) minmax(0, 1fr) 44px;
+      gap: 10px;
+      align-items: center;
+      font-size: .86rem;
+      color: var(--muted);
+    }
+
+    .stat-bar strong {
+      color: var(--ink);
+      font-size: .86rem;
+      overflow-wrap: anywhere;
+    }
+
+    .settings-actions {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .settings-actions .btn {
+      min-height: 42px;
+    }
+
+    .settings-note {
+      color: var(--muted);
+      font-size: .86rem;
+      line-height: 1.45;
+    }
+
+    .game-main {
+      grid-template-columns: 58px minmax(0, 1fr);
+      align-items: center;
+    }
+
+    .game-copy {
+      min-width: 0;
+      display: grid;
+      gap: 6px;
+    }
+
+    .game-cover {
+      width: 58px;
+      aspect-ratio: 3 / 4;
+      border: 1px solid #d7ddd5;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, #252a31, #0f766e);
+      overflow: hidden;
+    }
+
+    .cover-thumb {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .cover-placeholder {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      color: rgba(255, 250, 240, .8);
+      font-size: .68rem;
+      font-weight: 900;
+      letter-spacing: .06em;
+    }
+
+    .icon-actions {
+      grid-template-columns: repeat(3, 34px);
+    }
+
+    .game-side {
+      grid-template-columns: 1fr 112px;
+    }
+
     .sr-only {
       position: absolute;
       width: 1px;
@@ -959,6 +1163,21 @@
       aside,
       main {
         padding: 16px;
+      }
+
+
+      .app-tabs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        position: static;
+      }
+
+      .dashboard-cards,
+      .settings-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .stat-bar {
+        grid-template-columns: 1fr;
       }
 
       .filters,
@@ -1072,6 +1291,26 @@
         </div>
       </header>
 
+      <nav class="app-tabs" aria-label="Navigation principale">
+        <button class="tab-btn active" type="button" data-tab="sagas" aria-selected="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16"></path><path d="M4 12h16"></path><path d="M4 19h16"></path></svg>
+          Sagas
+        </button>
+        <button class="tab-btn" type="button" data-tab="games" aria-selected="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v16H6z"></path><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h4"></path></svg>
+          Jeux
+        </button>
+        <button class="tab-btn" type="button" data-tab="stats" aria-selected="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5"></path><path d="M8 17v-6"></path><path d="M13 17V7"></path><path d="M18 17v-3"></path><path d="M4 19h17"></path></svg>
+          Stats
+        </button>
+        <button class="tab-btn" type="button" data-tab="settings" aria-selected="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5Z"></path><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2 3.4-.2-.1a1.7 1.7 0 0 0-1.9.1l-.6.3a1.7 1.7 0 0 0-1 1.5V22h-4v-.2a1.7 1.7 0 0 0-1-1.5l-.6-.3a1.7 1.7 0 0 0-1.9-.1l-.2.1-2-3.4.1-.1A1.7 1.7 0 0 0 4.6 15l-.1-.6A1.7 1.7 0 0 0 3.2 13H3V9h.2a1.7 1.7 0 0 0 1.3-1.4l.1-.6a1.7 1.7 0 0 0-.3-1.9l-.1-.1 2-3.4.2.1a1.7 1.7 0 0 0 1.9-.1l.6-.3A1.7 1.7 0 0 0 10 0h4v.2a1.7 1.7 0 0 0 1 1.5l.6.3a1.7 1.7 0 0 0 1.9.1l.2-.1 2 3.4-.1.1a1.7 1.7 0 0 0-.3 1.9l.1.6A1.7 1.7 0 0 0 20.8 9h.2v4h-.2a1.7 1.7 0 0 0-1.4 1.4Z"></path></svg>
+          Paramètres
+        </button>
+      </nav>
+
+      <section class="app-view active" data-view="sagas" aria-label="Sagas">
       <section class="filters" aria-label="Filtres du catalogue">
         <div class="field">
           <label for="searchInput">Recherche</label>
@@ -1119,6 +1358,59 @@
       </div>
 
       <section class="saga-list" id="sagaList" aria-live="polite"></section>
+      </section>
+
+      <section class="app-view" data-view="games" aria-label="Jeux">
+        <div class="view-panel">
+          <div class="panel-head">
+            <div>
+              <h3>Liste des jeux</h3>
+              <p>Vue plate avec les mêmes filtres que l’onglet Sagas.</p>
+            </div>
+            <span class="catalog-meta" id="flatCatalogMeta"></span>
+          </div>
+          <section class="flat-game-list" id="flatGameList" aria-live="polite"></section>
+        </div>
+      </section>
+
+      <section class="app-view" data-view="stats" aria-label="Statistiques">
+        <div class="stats-dashboard" id="statsDashboard"></div>
+      </section>
+
+      <section class="app-view" data-view="settings" aria-label="Paramètres">
+        <div class="settings-grid">
+          <section class="view-panel">
+            <div class="panel-head">
+              <div>
+                <h3>Catalogue et sauvegarde</h3>
+                <p>Données stockées dans ce navigateur.</p>
+              </div>
+            </div>
+            <div class="settings-actions">
+              <button class="btn primary" id="settingsAddGameBtn" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+                Ajouter
+              </button>
+              <button class="btn" id="settingsExportBtn" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
+                Exporter
+              </button>
+              <label class="btn" for="importFile">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21V9"></path><path d="m7 14 5-5 5 5"></path><path d="M5 3h14"></path></svg>
+                Importer
+              </label>
+              <button class="btn" id="settingsCollapseBtn" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 9 4-4 4 4"></path><path d="m8 15 4 4 4-4"></path></svg>
+                Sagas
+              </button>
+              <button class="btn danger" id="settingsResetBtn" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m10 11 .5 6"></path><path d="m14 11-.5 6"></path><path d="M6 6l1 15h10l1-15"></path></svg>
+                Reset
+              </button>
+            </div>
+          </section>
+        </div>
+      </section>
     </main>
   </div>
 
@@ -1161,6 +1453,46 @@
       <div class="dialog-actions">
         <button class="btn" type="button" id="cancelDialogBtn">Annuler</button>
         <button class="btn primary" type="submit">Ajouter</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="editGameDialog">
+    <form method="dialog" id="editGameForm">
+      <input id="editGameId" type="hidden">
+      <div class="dialog-head">
+        <h3>Modifier la fiche</h3>
+        <button class="icon-btn" type="button" id="closeEditDialogBtn" aria-label="Fermer">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </button>
+      </div>
+      <div class="dialog-body">
+        <div class="field">
+          <label for="editTitle">Titre</label>
+          <input id="editTitle" name="title" required>
+        </div>
+        <div class="dialog-grid">
+          <div class="field">
+            <label for="editYear">Année</label>
+            <input id="editYear" name="year" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label for="editScope">Type</label>
+            <select id="editScope" name="scope"></select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="editPlatforms">Plateformes</label>
+          <input id="editPlatforms" name="platforms" placeholder="PC, PS5, Xbox, Switch...">
+        </div>
+        <div class="field">
+          <label for="editCoverUrl">URL de jaquette</label>
+          <input id="editCoverUrl" name="coverUrl" type="url" placeholder="https://...">
+        </div>
+      </div>
+      <div class="dialog-actions">
+        <button class="btn" type="button" id="cancelEditDialogBtn">Annuler</button>
+        <button class="btn primary" type="submit">Enregistrer</button>
       </div>
     </form>
   </dialog>
@@ -13852,6 +14184,7 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
       onlyOwned: false,
       onlyNext: false
     };
+    let activeTab = "sagas";
 
     const refs = {
       statGrid: document.querySelector("#statGrid"),
@@ -13859,7 +14192,12 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
       nextList: document.querySelector("#nextList"),
       overallMeter: document.querySelector("#overallMeter"),
       overallValue: document.querySelector("#overallValue"),
+      tabButtons: document.querySelectorAll("[data-tab]"),
+      views: document.querySelectorAll("[data-view]"),
       sagaList: document.querySelector("#sagaList"),
+      flatGameList: document.querySelector("#flatGameList"),
+      flatCatalogMeta: document.querySelector("#flatCatalogMeta"),
+      statsDashboard: document.querySelector("#statsDashboard"),
       catalogMeta: document.querySelector("#catalogMeta"),
       searchInput: document.querySelector("#searchInput"),
       categoryFilter: document.querySelector("#categoryFilter"),
@@ -13875,6 +14213,10 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
       resetBtn: document.querySelector("#resetBtn"),
       addGameBtn: document.querySelector("#addGameBtn"),
       collapseBtn: document.querySelector("#collapseBtn"),
+      settingsAddGameBtn: document.querySelector("#settingsAddGameBtn"),
+      settingsExportBtn: document.querySelector("#settingsExportBtn"),
+      settingsCollapseBtn: document.querySelector("#settingsCollapseBtn"),
+      settingsResetBtn: document.querySelector("#settingsResetBtn"),
       gameDialog: document.querySelector("#gameDialog"),
       gameForm: document.querySelector("#gameForm"),
       closeDialogBtn: document.querySelector("#closeDialogBtn"),
@@ -13884,6 +14226,16 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
       newTitle: document.querySelector("#newTitle"),
       newYear: document.querySelector("#newYear"),
       newScope: document.querySelector("#newScope"),
+      editDialog: document.querySelector("#editGameDialog"),
+      editGameForm: document.querySelector("#editGameForm"),
+      closeEditDialogBtn: document.querySelector("#closeEditDialogBtn"),
+      cancelEditDialogBtn: document.querySelector("#cancelEditDialogBtn"),
+      editGameId: document.querySelector("#editGameId"),
+      editTitle: document.querySelector("#editTitle"),
+      editYear: document.querySelector("#editYear"),
+      editScope: document.querySelector("#editScope"),
+      editPlatforms: document.querySelector("#editPlatforms"),
+      editCoverUrl: document.querySelector("#editCoverUrl"),
       categoryList: document.querySelector("#categoryList"),
       sagaDatalist: document.querySelector("#sagaDatalist")
     };
@@ -13902,6 +14254,7 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
         progress: {},
         custom: [],
         collapsed: {},
+        overrides: {},
         savedAt: null
       };
 
@@ -13965,12 +14318,19 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
       const year = String(game.year || "TBA").trim();
       const scope = game.scope || "principal";
       const id = game.id || slugify(`${category}-${saga}-${title}-${year}-${scope}-${gameIndex}`);
+      const override = state.overrides?.[id] || {};
+      const platforms = game.platforms || "";
       return {
         id,
-        title,
-        year,
-        scope,
-        platforms: game.platforms || "",
+        baseTitle: title,
+        baseYear: year,
+        baseScope: scope,
+        basePlatforms: platforms,
+        title: override.title || title,
+        year: override.year || year,
+        scope: override.scope || scope,
+        platforms: override.platforms ?? platforms,
+        coverUrl: override.coverUrl || game.coverUrl || "",
         category,
         saga,
         custom,
@@ -13995,6 +14355,8 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
         .map(([value, label]) => `<option value="${value}">${label}</option>`)
         .join("");
 
+      refs.editScope.innerHTML = refs.newScope.innerHTML;
+
       refs.categoryList.innerHTML = catalog.map((item) => `<option value="${escapeAttr(item.category)}"></option>`).join("");
       refs.sagaDatalist.innerHTML = [...new Set(allGames.map((game) => game.saga))]
         .sort((a, b) => a.localeCompare(b, "fr"))
@@ -14003,6 +14365,10 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
     }
 
     function bindEvents() {
+      refs.tabButtons.forEach((button) => {
+        button.addEventListener("click", () => setActiveTab(button.dataset.tab));
+      });
+
       refs.searchInput.addEventListener("input", () => {
         filters.search = refs.searchInput.value.trim().toLowerCase();
         render();
@@ -14038,22 +14404,26 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
       refs.sagaList.addEventListener("click", handleCatalogClick);
       refs.sagaList.addEventListener("change", handleCatalogChange);
       refs.sagaList.addEventListener("input", handleCatalogInput);
+      refs.flatGameList.addEventListener("click", handleCatalogClick);
+      refs.flatGameList.addEventListener("change", handleCatalogChange);
+      refs.flatGameList.addEventListener("input", handleCatalogInput);
 
       refs.exportBtn.addEventListener("click", exportData);
       refs.importFile.addEventListener("change", importData);
       refs.resetBtn.addEventListener("click", resetData);
       refs.addGameBtn.addEventListener("click", openGameDialog);
+      refs.settingsAddGameBtn.addEventListener("click", openGameDialog);
+      refs.settingsExportBtn.addEventListener("click", exportData);
+      refs.settingsResetBtn.addEventListener("click", resetData);
+      refs.settingsCollapseBtn.addEventListener("click", toggleVisibleSagas);
       refs.closeDialogBtn.addEventListener("click", () => refs.gameDialog.close());
       refs.cancelDialogBtn.addEventListener("click", () => refs.gameDialog.close());
       refs.gameForm.addEventListener("submit", addCustomGame);
+      refs.closeEditDialogBtn.addEventListener("click", () => refs.editDialog.close());
+      refs.cancelEditDialogBtn.addEventListener("click", () => refs.editDialog.close());
+      refs.editGameForm.addEventListener("submit", saveGameEdits);
 
-      refs.collapseBtn.addEventListener("click", () => {
-        const visibleSagas = getVisibleSagas();
-        const shouldCollapse = visibleSagas.some((saga) => !state.collapsed[saga.name]);
-        for (const saga of visibleSagas) state.collapsed[saga.name] = shouldCollapse;
-        saveState();
-        render();
-      });
+      refs.collapseBtn.addEventListener("click", toggleVisibleSagas);
     }
 
     function handleCatalogClick(event) {
@@ -14065,9 +14435,15 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
       const sagaName = button.dataset.saga;
 
       if (action === "toggle-saga") {
-        state.collapsed[sagaName] = !state.collapsed[sagaName];
+        const current = state.collapsed[sagaName] ?? true;
+        state.collapsed[sagaName] = !current;
         saveState();
         render();
+        return;
+      }
+
+      if (action === "edit-game") {
+        openEditGameDialog(gameId);
         return;
       }
 
@@ -14152,6 +14528,33 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
       renderStats();
       renderSidebar();
       renderCatalog(visibleSagas);
+      renderFlatGames(visibleSagas);
+      renderStatsDashboard();
+    }
+
+    function setActiveTab(tab) {
+      activeTab = tab || "sagas";
+      refs.tabButtons.forEach((button) => {
+        const active = button.dataset.tab === activeTab;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-selected", String(active));
+      });
+      refs.views.forEach((view) => {
+        view.classList.toggle("active", view.dataset.view === activeTab);
+      });
+      render();
+    }
+
+    function toggleVisibleSagas() {
+      const visibleSagas = getVisibleSagas();
+      const shouldCollapse = visibleSagas.some((saga) => !(state.collapsed[saga.name] ?? true));
+      for (const saga of visibleSagas) state.collapsed[saga.name] = shouldCollapse;
+      saveState();
+      render();
+    }
+
+    function getVisibleGames(visibleSagas = getVisibleSagas()) {
+      return visibleSagas.flatMap((saga) => saga.games);
     }
 
     function getVisibleSagas() {
@@ -14243,7 +14646,8 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
       const allSagaGames = allGames.filter((game) => game.saga === saga.name);
       const stats = getSagaStats(allSagaGames);
       const shown = saga.games.length;
-      const collapsed = state.collapsed[saga.name];
+      const defaultCollapsed = filters.search ? false : true;
+      const collapsed = state.collapsed[saga.name] ?? defaultCollapsed;
       const scopeCounts = Object.entries(countBy(allSagaGames, "scope"))
         .sort((a, b) => b[1] - a[1])
         .slice(0, 4);
@@ -14267,6 +14671,7 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
               <svg viewBox="0 0 24 24" width="18" height="18"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             </span>
           </button>
+          ${collapsed ? "" : `
           <div class="saga-body">
             <div class="saga-tools">
               <button class="btn" type="button" data-action="batch-story" data-saga="${escapeAttr(saga.name)}">
@@ -14286,10 +14691,88 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
               ${saga.games.map((game) => gameTemplate(game)).join("")}
             </div>
           </div>
+          `}
         </article>
       `;
     }
 
+
+    function renderFlatGames(visibleSagas) {
+      const games = getVisibleGames(visibleSagas);
+      refs.flatCatalogMeta.textContent = `${games.length} jeux`;
+      if (activeTab !== "games") {
+        refs.flatGameList.innerHTML = "";
+        return;
+      }
+      refs.flatGameList.innerHTML = games.length
+        ? games.map((game) => gameTemplate(game)).join("")
+        : `<div class="empty">Aucun jeu ne correspond aux filtres actifs.</div>`;
+    }
+
+    function renderStatsDashboard() {
+      const actionable = allGames.filter((game) => game.scope !== "upcoming");
+      const stats = getGameStats(actionable);
+      const hltbStats = getHltbStats(actionable);
+      const categories = catalog.map((category) => {
+        const games = category.sagas.flatMap((saga) => saga.games).filter((game) => game.scope !== "upcoming");
+        return { name: category.category, stats: getGameStats(games) };
+      }).sort((a, b) => b.stats.average - a.stats.average);
+      const statusCounts = Object.entries(STATUS_LABELS).map(([status, label]) => ({
+        label,
+        count: actionable.filter((game) => getProgress(game.id).status === status).length
+      }));
+
+      refs.statsDashboard.innerHTML = `
+        <section class="view-panel">
+          <div class="dashboard-cards">
+            ${dashboardCard(`${stats.done}/${stats.total}`, "Jeux terminés")}
+            ${dashboardCard(stats.hundred, "Completions 100%")}
+            ${dashboardCard(stats.playing, "Jeux en cours")}
+            ${dashboardCard(`${stats.average}%`, "Progression moyenne")}
+            ${dashboardCard(formatHoursShort(hltbStats.remainingComplete), "Restant HLTB 100%")}
+            ${dashboardCard(formatHoursShort(hltbStats.totalComplete), "Catalogue HLTB 100%")}
+            ${dashboardCard(stats.hours, "Heures notées")}
+            ${dashboardCard(allGames.length, "Jeux au catalogue")}
+          </div>
+        </section>
+        <section class="view-panel">
+          <div class="panel-head">
+            <div>
+              <h3>Progression par genre</h3>
+              <p>${categories.length} genres suivis</p>
+            </div>
+          </div>
+          <div class="stat-bars">
+            ${categories.map((item) => statBar(item.name, item.stats.average)).join("")}
+          </div>
+        </section>
+        <section class="view-panel">
+          <div class="panel-head">
+            <div>
+              <h3>Répartition des statuts</h3>
+              <p>${actionable.length} jeux hors sorties à venir</p>
+            </div>
+          </div>
+          <div class="dashboard-cards">
+            ${statusCounts.map((item) => dashboardCard(item.count, item.label)).join("")}
+          </div>
+        </section>
+      `;
+    }
+
+    function dashboardCard(value, label) {
+      return `<div class="dashboard-card"><strong>${escapeHtml(String(value))}</strong><span>${escapeHtml(label)}</span></div>`;
+    }
+
+    function statBar(label, value) {
+      return `
+        <div class="stat-bar">
+          <strong>${escapeHtml(label)}</strong>
+          <div class="progress-track"><i style="--value:${value}%"></i></div>
+          <span>${value}%</span>
+        </div>
+      `;
+    }
 
     function hltbTimeTemplate(game) {
       const hltb = game.hltb;
@@ -14356,6 +14839,11 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
 
     function gameTemplate(game) {
       const entry = getProgress(game.id);
+      const override = state.overrides?.[game.id];
+      const initials = game.title.split(/\s+/).slice(0, 2).map((word) => word[0] || "").join("").toUpperCase();
+      const cover = game.coverUrl
+        ? `<img class="cover-thumb" src="${escapeAttr(game.coverUrl)}" alt="" loading="lazy">`
+        : `<div class="cover-placeholder" aria-hidden="true">${escapeHtml(initials || "TC")}</div>`;
       const statusOptions = Object.entries(STATUS_LABELS).map(([value, label]) => (
         `<option value="${value}" ${entry.status === value ? "selected" : ""}>${label}</option>`
       )).join("");
@@ -14366,17 +14854,21 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
       return `
         <div class="game-row" data-status="${entry.status}">
           <div class="game-main">
-            <div class="game-title-line">
-              <strong>${escapeHtml(game.title)}</strong>
-              <span class="game-year">${escapeHtml(game.year)}</span>
+            <div class="game-cover">${cover}</div>
+            <div class="game-copy">
+              <div class="game-title-line">
+                <strong>${escapeHtml(game.title)}</strong>
+                <span class="game-year">${escapeHtml(game.year)}</span>
+              </div>
+              <div class="game-meta">
+                <span class="chip ${escapeAttr(game.scope)}"><i></i>${SCOPE_LABELS[game.scope] || game.scope}</span>
+                ${game.platforms ? `<span class="chip">${escapeHtml(game.platforms)}</span>` : ""}
+                ${override ? `<span class="chip"><i style="--chip:#475aa8"></i>Modifié</span>` : ""}
+                ${entry.favorite ? `<span class="chip"><i style="--chip:#ca7a23"></i>Favori</span>` : ""}
+                ${entry.next ? `<span class="chip"><i style="--chip:#a94442"></i>Cible</span>` : ""}
+              </div>
+              ${hltbTimeTemplate(game)}
             </div>
-            <div class="game-meta">
-              <span class="chip ${escapeAttr(game.scope)}"><i></i>${SCOPE_LABELS[game.scope] || game.scope}</span>
-              ${game.platforms ? `<span class="chip">${escapeHtml(game.platforms)}</span>` : ""}
-              ${entry.favorite ? `<span class="chip"><i style="--chip:#ca7a23"></i>Favori</span>` : ""}
-              ${entry.next ? `<span class="chip"><i style="--chip:#a94442"></i>Cible</span>` : ""}
-            </div>
-            ${hltbTimeTemplate(game)}
           </div>
           <select class="status-select" data-field="status" data-game-id="${game.id}" aria-label="Statut de ${escapeAttr(game.title)}">
             ${statusOptions}
@@ -14396,6 +14888,9 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
               </button>
               <button class="icon-btn ${entry.next ? "active" : ""}" type="button" data-action="next" data-game-id="${game.id}" title="Prochaine cible" aria-label="Prochaine cible">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5"></path><path d="M4 5h12l-2 4 2 4H4"></path></svg>
+              </button>
+              <button class="icon-btn" type="button" data-action="edit-game" data-game-id="${game.id}" title="Modifier la fiche" aria-label="Modifier la fiche">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
               </button>
             </div>
           </div>
@@ -14478,6 +14973,39 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
       return years.length ? Math.min(...years) : 9999;
     }
 
+
+    function openEditGameDialog(gameId) {
+      const game = allGames.find((item) => item.id === gameId);
+      if (!game) return;
+      refs.editGameId.value = game.id;
+      refs.editTitle.value = game.title;
+      refs.editYear.value = game.year;
+      refs.editScope.value = game.scope;
+      refs.editPlatforms.value = game.platforms;
+      refs.editCoverUrl.value = game.coverUrl || "";
+      refs.editDialog.showModal();
+      refs.editTitle.focus();
+    }
+
+    function saveGameEdits(event) {
+      event.preventDefault();
+      const gameId = refs.editGameId.value;
+      const game = allGames.find((item) => item.id === gameId);
+      if (!game) return;
+      state.overrides[gameId] = {
+        title: refs.editTitle.value.trim() || game.baseTitle || game.title,
+        year: refs.editYear.value.trim() || game.baseYear || game.year,
+        scope: refs.editScope.value || game.baseScope || game.scope,
+        platforms: refs.editPlatforms.value.trim(),
+        coverUrl: refs.editCoverUrl.value.trim()
+      };
+      saveState();
+      refs.editDialog.close();
+      hydrateCatalog();
+      hydrateControls();
+      render();
+    }
+
     function openGameDialog() {
       refs.gameForm.reset();
       refs.newCategory.value = filters.category !== "all" ? filters.category : "Catalogue personnel";
@@ -14534,6 +15062,7 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
           state.progress = imported.progress || {};
           state.custom = imported.custom || [];
           state.collapsed = imported.collapsed || {};
+          state.overrides = imported.overrides || {};
           saveState();
           hydrateCatalog();
           hydrateControls();
@@ -14552,6 +15081,7 @@ Ratchet & Clank: Rift Apart|2021|principal|PS5, PC
       state.progress = {};
       state.custom = [];
       state.collapsed = {};
+      state.overrides = {};
       saveState();
       hydrateCatalog();
       hydrateControls();
