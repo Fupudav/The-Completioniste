@@ -7,6 +7,7 @@ import { getBacklogItems } from "../assets/js/backlog.js";
 import { buildAdvancedStats } from "../assets/js/advanced-stats.js";
 import { applyTemporalDefaults, getTimelineEvents } from "../assets/js/timeline.js";
 import { getRealisticRemainingHltbSeconds } from "../assets/js/stats.js";
+import { sagaTemplate } from "../assets/js/templates.js";
 import {
   createBackup,
   createExportPayload,
@@ -157,6 +158,26 @@ test("advanced stats group by platform, decade and remaining genre time", () => 
   assert.equal(stats.remainingByGenre[0].remaining, 3600);
 });
 
+
+test("saga template only renders games when saga is expanded", () => {
+  const saga = {
+    name: "Saga",
+    games: [
+      { id: "game", title: "Game", saga: "Saga", category: "RPG", year: "1997", scope: "principal", hltb: null, platforms: "" }
+    ]
+  };
+  const state = migrateState();
+  const context = {
+    allGames: saga.games,
+    filters: { search: "game" },
+    state,
+    hltbUpdatedAt: "2026-07-08"
+  };
+
+  assert.equal(sagaTemplate(saga, context).includes("game-row"), false);
+  state.collapsed.Saga = false;
+  assert.equal(sagaTemplate(saga, context).includes("game-row"), true);
+});
 test("diagnostics detect missing HLTB and duplicate ids", () => {
   const raw = [{ category: "Test", sagas: [{ name: "Saga", games: "Game A|2001|principal|PC\nGame A|2001|principal|PC" }] }];
   const state = migrateState();

@@ -12,8 +12,7 @@ export function sagaTemplate(saga, context) {
   const allSagaGames = allGames.filter((game) => game.saga === saga.name);
   const stats = getSagaStats(allSagaGames, state);
   const shown = saga.games.length;
-  const defaultCollapsed = filters.search ? false : true;
-  const collapsed = state.collapsed[saga.name] ?? defaultCollapsed;
+  const collapsed = state.collapsed[saga.name] ?? true;
   const pinned = state.pinnedSagas?.includes(saga.name);
   const scopeCounts = Object.entries(countBy(allSagaGames, "scope"))
     .sort((a, b) => b[1] - a[1])
@@ -68,9 +67,10 @@ export function sagaTemplate(saga, context) {
   `;
 }
 
-export function gameTemplate(game, context) {
+export function gameTemplate(game, context, options = {}) {
   const { state } = context;
   const entry = getProgress(state, game.id);
+  const includeDetails = options.details !== false;
   const override = state.overrides?.[game.id];
   const initials = game.title.split(/\s+/).slice(0, 2).map((word) => word[0] || "").join("").toUpperCase();
   const cover = game.coverUrl
@@ -134,7 +134,7 @@ export function gameTemplate(game, context) {
           </button>
         </div>
       </div>
-      <details class="game-details">
+      ${includeDetails ? `<details class="game-details">
         <summary>Détails perso</summary>
         <div class="detail-grid">
           <label class="toggle"><input type="checkbox" data-field="owned" data-game-id="${game.id}" ${entry.owned ? "checked" : ""}> Possédé</label>
@@ -199,7 +199,7 @@ export function gameTemplate(game, context) {
             <textarea data-field="notes" data-game-id="${game.id}" placeholder="DLC restants, succès manquants, build, sauvegarde...">${escapeHtml(entry.notes)}</textarea>
           </div>
         </div>
-      </details>
+      </details>` : ""}
     </div>
   `;
 }
