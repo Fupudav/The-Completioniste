@@ -1,4 +1,4 @@
-const CACHE_NAME = "the-completioniste-v5";
+const CACHE_NAME = "the-completioniste-v6";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -21,8 +21,19 @@ const APP_SHELL = [
   "./assets/js/templates.js",
   "./assets/js/timeline.js",
   "./assets/js/utils.js",
+  "./assets/icons/apple-touch-icon.png",
+  "./assets/icons/favicon-16.png",
+  "./assets/icons/favicon-32.png",
+  "./assets/icons/icon-48.png",
+  "./assets/icons/icon-72.png",
+  "./assets/icons/icon-96.png",
+  "./assets/icons/icon-128.png",
+  "./assets/icons/icon-144.png",
+  "./assets/icons/icon-152.png",
   "./assets/icons/icon-192.png",
+  "./assets/icons/icon-384.png",
   "./assets/icons/icon-512.png",
+  "./assets/icons/maskable-192.png",
   "./assets/icons/maskable-512.png"
 ];
 
