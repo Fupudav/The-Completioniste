@@ -22,9 +22,10 @@ export function getHltbStats(games, state) {
     if (!complete) return acc;
     acc.totalComplete += complete;
     acc.remainingComplete += getRemainingHltbSeconds(game, state);
+    acc.remainingTarget += getRealisticRemainingHltbSeconds(game, state);
     acc.withTimes += 1;
     return acc;
-  }, { totalComplete: 0, remainingComplete: 0, withTimes: 0 });
+  }, { totalComplete: 0, remainingComplete: 0, remainingTarget: 0, withTimes: 0 });
 }
 
 export function getRemainingHltbSeconds(game, state) {
@@ -36,6 +37,27 @@ export function getRemainingHltbSeconds(game, state) {
   if (entry.completion === "side") return Math.max(0, complete - (hltb.extra || hltb.main || 0));
   if (entry.completion === "story") return Math.max(0, complete - (hltb.main || 0));
   return complete;
+}
+
+export function getRealisticRemainingHltbSeconds(game, state) {
+  const hltb = game.hltb;
+  if (!hltb) return 0;
+  const entry = getProgress(state, game.id);
+  const target = getTargetHltbSeconds(game, state);
+  if (!target || entry.status === "dropped") return 0;
+  if (entry.completion === "hundred") return 0;
+  if (entry.completion === "side") return Math.max(0, target - (hltb.extra || hltb.main || 0));
+  if (entry.completion === "story") return Math.max(0, target - (hltb.main || 0));
+  return target;
+}
+
+export function getTargetHltbSeconds(game, state) {
+  const hltb = game.hltb;
+  if (!hltb) return 0;
+  const target = getProgress(state, game.id).target || "hundred";
+  if (target === "story") return hltb.main || hltb.extra || hltb.complete || 0;
+  if (target === "side") return hltb.extra || hltb.complete || hltb.main || 0;
+  return getBestHltbSeconds(game);
 }
 
 export function getBestHltbSeconds(game) {

@@ -5,6 +5,6 @@
   "type": "module",
   "scripts": {
     "test": "node --test tests/*.test.mjs",
-    "check": "node --check assets/js/app.js && node --check assets/data/hltb-times.js && node --check assets/data/catalog.js && node --check service-worker.js && npm test"
+    "check": "node --check assets/js/app.js && node --check assets/js/backlog.js && node --check assets/js/timeline.js && node --check assets/js/advanced-stats.js && node --check assets/data/hltb-times.js && node --check assets/data/catalog.js && node --check service-worker.js && npm test"
   }
 }

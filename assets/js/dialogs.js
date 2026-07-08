@@ -114,9 +114,11 @@ export function importData(event, context) {
   const reader = new FileReader();
   reader.onload = () => {
     try {
+      const snapshot = context.createUndoSnapshot?.();
       context.replaceState(importStatePayload(JSON.parse(String(reader.result))));
       context.persist({ backup: false });
       context.refreshCatalog();
+      if (snapshot) context.showUndo?.("Import appliqué", snapshot);
     } catch {
       alert("Import impossible : fichier JSON invalide.");
     } finally {

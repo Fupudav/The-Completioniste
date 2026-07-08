@@ -1,4 +1,5 @@
 import {
+  BACKUP_FORMAT_VERSION,
   BACKUP_STORAGE_KEY,
   DEFAULT_PROFILE_ID,
   DEFAULT_PROFILE_NAME,
@@ -159,17 +160,24 @@ export function recordHistory(state, item, date = new Date()) {
 }
 
 export function createExportPayload(state) {
+  const migrated = migrateState(state);
   return {
     app: "completion-saga-tracker",
     version: STATE_VERSION,
+    backupFormat: BACKUP_FORMAT_VERSION,
     exportedAt: new Date().toISOString(),
-    state: migrateState(state)
+    checksum: createStateChecksum(migrated),
+    state: migrated
   };
 }
 
 export function importStatePayload(payload) {
   const imported = payload?.state || payload;
+  if (payload?.app && payload.app !== "completion-saga-tracker") throw new Error("Application invalide");
   if (!imported || typeof imported !== "object") throw new Error("Format invalide");
+  if (payload?.checksum && payload.checksum !== createStateChecksum(migrateState(imported))) {
+    throw new Error("Sauvegarde corrompue");
+  }
   return migrateState(imported);
 }
 
@@ -187,14 +195,20 @@ export function createBackup(storage = localStorage, state, reason = "manual", d
   const backups = listBackups(storage);
   const day = date.toISOString().slice(0, 10);
   if (reason === "auto" && backups.some((backup) => backup.reason === "auto" && backup.day === day)) return backups;
+  const backupState = migrateState(state);
 
   const backup = {
     id: `${date.toISOString()}-${reason}`,
+    version: BACKUP_FORMAT_VERSION,
+    stateVersion: STATE_VERSION,
     day,
     reason,
     createdAt: date.toISOString(),
     savedAt: state.savedAt || null,
-    state: migrateState(state)
+    activeProfileId: backupState.activeProfileId,
+    profileCount: Object.keys(backupState.profiles || {}).length,
+    checksum: createStateChecksum(backupState),
+    state: backupState
   };
 
   const next = [backup, ...backups]
@@ -207,7 +221,25 @@ export function createBackup(storage = localStorage, state, reason = "manual", d
 export function restoreBackup(storage = localStorage, backupId) {
   const backup = listBackups(storage).find((item) => item.id === backupId);
   if (!backup) throw new Error("Sauvegarde introuvable");
+  if (backup.checksum && backup.checksum !== createStateChecksum(migrateState(backup.state))) {
+    throw new Error("Sauvegarde locale corrompue");
+  }
   return migrateState(backup.state);
+}
+
+export function createStateChecksum(state) {
+  const stable = stableStringify({
+    version: state.version,
+    activeProfileId: state.activeProfileId,
+    profiles: state.profiles,
+    savedAt: state.savedAt || null
+  });
+  let hash = 2166136261;
+  for (let index = 0; index < stable.length; index += 1) {
+    hash ^= stable.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `fnv1a-${(hash >>> 0).toString(16).padStart(8, "0")}`;
 }
 
 function attachActiveProfile(state) {
@@ -250,4 +282,12 @@ function attachActiveProfile(state) {
   state.pinnedSagas = profile.pinnedSagas;
   state.history = profile.history;
   return state;
+}
+
+function stableStringify(value) {
+  if (Array.isArray(value)) return `[${value.map((item) => stableStringify(item)).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stableStringify(value[key])}`).join(",")}}`;
+  }
+  return JSON.stringify(value);
 }

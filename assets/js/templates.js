@@ -1,4 +1,4 @@
-import { COMPLETION, SCOPE_LABELS, STATUS_LABELS } from "./constants.js";
+import { COMPLETION, DLC_LABELS, SCOPE_LABELS, STATUS_LABELS, TARGET_LABELS } from "./constants.js";
 import { getProgress } from "./state.js";
 import { countBy, escapeAttr, escapeHtml, formatHltbTime } from "./utils.js";
 import { getSagaStats } from "./stats.js";
@@ -82,6 +82,12 @@ export function gameTemplate(game, context) {
   const completionButtons = Object.entries(COMPLETION).map(([value, item]) => (
     `<button type="button" class="${entry.completion === value ? "active" : ""}" data-action="completion" data-completion="${value}" data-game-id="${game.id}" title="${item.long}">${item.label}</button>`
   )).join("");
+  const targetOptions = Object.entries(TARGET_LABELS).map(([value, label]) => (
+    `<option value="${value}" ${entry.target === value ? "selected" : ""}>Objectif ${label}</option>`
+  )).join("");
+  const dlcOptions = Object.entries(DLC_LABELS).map(([value, label]) => (
+    `<option value="${value}" ${entry.dlcCompletion === value ? "selected" : ""}>${label}</option>`
+  )).join("");
 
   return `
     <div class="game-row" data-status="${entry.status}">
@@ -98,6 +104,8 @@ export function gameTemplate(game, context) {
             ${override ? `<span class="chip"><i style="--chip:#475aa8"></i>Modifié</span>` : ""}
             ${entry.favorite ? `<span class="chip"><i style="--chip:#ca7a23"></i>Favori</span>` : ""}
             ${entry.next ? `<span class="chip"><i style="--chip:#a94442"></i>Cible</span>` : ""}
+            ${entry.owned && entry.status === "todo" && entry.completion === "none" ? `<span class="chip"><i style="--chip:#6d7a39"></i>Possédé non lancé</span>` : ""}
+            ${entry.edition ? `<span class="chip">${escapeHtml(entry.edition)}</span>` : ""}
           </div>
           ${hltbTimeTemplate(game, context)}
         </div>
@@ -131,6 +139,18 @@ export function gameTemplate(game, context) {
         <div class="detail-grid">
           <label class="toggle"><input type="checkbox" data-field="owned" data-game-id="${game.id}" ${entry.owned ? "checked" : ""}> Possédé</label>
           <div class="field">
+            <label>Objectif</label>
+            <select class="small-input" data-field="target" data-game-id="${game.id}">${targetOptions}</select>
+          </div>
+          <div class="field">
+            <label>Plateforme possédée</label>
+            <input class="small-input" data-field="ownedPlatform" data-game-id="${game.id}" value="${escapeAttr(entry.ownedPlatform)}" placeholder="PS5, Steam Deck...">
+          </div>
+          <div class="field">
+            <label>Édition</label>
+            <input class="small-input" data-field="edition" data-game-id="${game.id}" value="${escapeAttr(entry.edition)}" placeholder="Complete, GOTY, Director's Cut...">
+          </div>
+          <div class="field">
             <label>Heures</label>
             <input class="small-input" type="number" min="0" step="1" data-field="hours" data-game-id="${game.id}" value="${escapeAttr(entry.hours)}">
           </div>
@@ -141,6 +161,38 @@ export function gameTemplate(game, context) {
           <div class="field">
             <label>Plateforme jouée</label>
             <input class="small-input" data-field="platform" data-game-id="${game.id}" value="${escapeAttr(entry.platform)}" placeholder="Steam, PS5, Switch...">
+          </div>
+          <div class="field">
+            <label>DLC</label>
+            <select class="small-input" data-field="dlcCompletion" data-game-id="${game.id}">${dlcOptions}</select>
+          </div>
+          <div class="field">
+            <label>Commencé le</label>
+            <input class="small-input" type="date" data-field="startDate" data-game-id="${game.id}" value="${escapeAttr(entry.startDate)}">
+          </div>
+          <div class="field">
+            <label>Dernière session</label>
+            <input class="small-input" type="date" data-field="lastSessionDate" data-game-id="${game.id}" value="${escapeAttr(entry.lastSessionDate)}">
+          </div>
+          <button class="btn small" type="button" data-action="session-today" data-game-id="${game.id}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2v4"></path><path d="M16 2v4"></path><path d="M3 10h18"></path><path d="M5 4h14v18H5z"></path></svg>
+            Session aujourd'hui
+          </button>
+          <div class="field">
+            <label>Terminé le</label>
+            <input class="small-input" type="date" data-field="finishDate" data-game-id="${game.id}" value="${escapeAttr(entry.finishDate)}">
+          </div>
+          <div class="field">
+            <label>100% le</label>
+            <input class="small-input" type="date" data-field="hundredDate" data-game-id="${game.id}" value="${escapeAttr(entry.hundredDate)}">
+          </div>
+          <div class="field">
+            <label>Abandonné le</label>
+            <input class="small-input" type="date" data-field="abandonedDate" data-game-id="${game.id}" value="${escapeAttr(entry.abandonedDate)}">
+          </div>
+          <div class="field" style="grid-column:1 / -1">
+            <label>DLC / éditions</label>
+            <textarea data-field="dlcNotes" data-game-id="${game.id}" placeholder="DLC inclus, passes saisonniers, édition possédée par plateforme...">${escapeHtml(entry.dlcNotes)}</textarea>
           </div>
           <div class="field" style="grid-column:1 / -1">
             <label>Notes</label>
@@ -195,7 +247,7 @@ export function backupListTemplate(backups) {
     <div class="backup-item">
       <div>
         <strong>${escapeHtml(new Date(backup.createdAt).toLocaleString("fr-FR"))}</strong>
-        <span>${backup.reason === "auto" ? "Automatique" : "Manuelle"} · état ${escapeHtml(backup.savedAt || "n/d")}</span>
+        <span>${backup.reason === "auto" ? "Automatique" : "Manuelle"} · état ${escapeHtml(backup.savedAt || "n/d")} · v${escapeHtml(backup.stateVersion || "legacy")} · ${escapeHtml(String(backup.profileCount || 1))} profil${Number(backup.profileCount || 1) > 1 ? "s" : ""}${backup.checksum ? ` · ${escapeHtml(backup.checksum.slice(0, 14))}` : ""}</span>
       </div>
       <button class="btn" type="button" data-action="restore-backup" data-backup-id="${escapeAttr(backup.id)}">Restaurer</button>
     </div>
@@ -215,6 +267,63 @@ export function historyListTemplate(history = []) {
       ${item.saga ? `<span class="chip">${escapeHtml(item.saga)}</span>` : ""}
     </div>
   `).join("");
+}
+
+export function backlogListTemplate(items = []) {
+  if (!items.length) {
+    return `<div class="empty small">Aucune cible de backlog disponible.</div>`;
+  }
+  return items.map((item) => `
+    <article class="backlog-item">
+      <div>
+        <strong>${escapeHtml(item.game.title)}</strong>
+        <span>${escapeHtml(item.game.saga)} · ${escapeHtml(item.game.year)} · ${TARGET_LABELS[item.entry.target] || "100%"}</span>
+        <div class="chips">
+          <span class="chip"><i></i>${escapeHtml(item.game.category)}</span>
+          <span class="chip">${item.entry.priority === "high" ? "Prioritaire" : item.entry.priority === "low" ? "Plus tard" : "Normal"}</span>
+          ${item.ownedNotStarted ? `<span class="chip"><i style="--chip:#6d7a39"></i>Possédé non lancé</span>` : ""}
+          ${item.entry.ownedPlatform ? `<span class="chip">${escapeHtml(item.entry.ownedPlatform)}</span>` : ""}
+        </div>
+      </div>
+      <div class="backlog-metrics">
+        <span>${formatHltbTime(item.remaining)} restant</span>
+        <strong>${formatHltbTime(item.target)}</strong>
+      </div>
+    </article>
+  `).join("");
+}
+
+export function timelineListTemplate(events = []) {
+  if (!events.length) {
+    return `<div class="empty small">Aucun événement temporel pour ce profil.</div>`;
+  }
+  return events.map((event) => `
+    <div class="timeline-item ${escapeAttr(event.type)}">
+      <time>${escapeHtml(formatDate(event.at))}</time>
+      <div>
+        <strong>${escapeHtml(event.title || event.label)}</strong>
+        <span>${event.title ? `${escapeHtml(event.label)} · ` : ""}${escapeHtml(event.saga || "Profil")}${event.detail ? ` · ${escapeHtml(event.detail)}` : ""}</span>
+      </div>
+    </div>
+  `).join("");
+}
+
+export function metricListTemplate(items = [], valueFormatter = (value) => `${value}%`) {
+  if (!items.length) return `<div class="empty small">Aucune donnée disponible.</div>`;
+  const max = Math.max(1, ...items.map((item) => item.value || 0));
+  return items.map((item) => `
+    <div class="metric-row">
+      <strong>${escapeHtml(item.label)}</strong>
+      <div class="progress-track"><i style="--value:${Math.round(((item.value || 0) / max) * 100)}%"></i></div>
+      <span>${escapeHtml(valueFormatter(item.value, item))}</span>
+    </div>
+  `).join("");
+}
+
+function formatDate(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return date.toLocaleDateString("fr-FR");
 }
 
 export function diagnosticsTemplate(groups) {
