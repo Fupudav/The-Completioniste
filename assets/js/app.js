@@ -6,6 +6,7 @@ import { createDefaultFilters, getNextBacklogGame } from "./filters.js";
 import {
   createBackup,
   createBaseState,
+  createExportPayload,
   createProfile,
   ensureProgress,
   getProgress,
@@ -17,6 +18,7 @@ import {
   setActiveProfile,
   touchProgress
 } from "./state.js";
+import { applyTemporalDefaults } from "./timeline.js";
 import { escapeAttr, escapeHtml } from "./utils.js";
 import { renderApp } from "./render.js";
 import {
@@ -54,6 +56,9 @@ const refs = {
   sagaList: document.querySelector("#sagaList"),
   flatGameList: document.querySelector("#flatGameList"),
   flatCatalogMeta: document.querySelector("#flatCatalogMeta"),
+  backlogSummary: document.querySelector("#backlogSummary"),
+  backlogList: document.querySelector("#backlogList"),
+  timelinePanel: document.querySelector("#timelinePanel"),
   statsDashboard: document.querySelector("#statsDashboard"),
   catalogMeta: document.querySelector("#catalogMeta"),
   searchInput: document.querySelector("#searchInput"),
@@ -73,6 +78,7 @@ const refs = {
   collapseBtn: document.querySelector("#collapseBtn"),
   settingsAddGameBtn: document.querySelector("#settingsAddGameBtn"),
   settingsExportBtn: document.querySelector("#settingsExportBtn"),
+  copySyncBtn: document.querySelector("#copySyncBtn"),
   settingsCollapseBtn: document.querySelector("#settingsCollapseBtn"),
   settingsResetBtn: document.querySelector("#settingsResetBtn"),
   settingsBackupBtn: document.querySelector("#settingsBackupBtn"),
@@ -224,6 +230,7 @@ function bindEvents() {
   refs.addGameBtn.addEventListener("click", () => openGameDialog(getContext()));
   refs.settingsAddGameBtn.addEventListener("click", () => openGameDialog(getContext()));
   refs.settingsExportBtn.addEventListener("click", () => exportData(getContext()));
+  refs.copySyncBtn?.addEventListener("click", copySyncPayload);
   refs.settingsResetBtn.addEventListener("click", () => resetData(getContext()));
   refs.settingsCollapseBtn.addEventListener("click", toggleVisibleSagas);
   refs.settingsBackupBtn?.addEventListener("click", () => {
@@ -275,6 +282,8 @@ function handleCatalogClick(event) {
     entry.completion = button.dataset.completion;
     if (entry.completion !== "none" && ["todo", "paused"].includes(entry.status)) entry.status = "done";
     if (entry.completion === "none" && entry.status === "done") entry.status = "todo";
+    applyTemporalDefaults(entry, "completion");
+    applyTemporalDefaults(entry, "status");
     touchGame(gameId);
     addHistory({
       type: "completion",
@@ -335,6 +344,26 @@ function handleCatalogClick(event) {
     return;
   }
 
+  if (action === "session-today") {
+    const game = findGame(gameId);
+    const entry = ensureProgress(app.state, gameId);
+    const today = new Date().toISOString().slice(0, 10);
+    entry.lastSessionDate = today;
+    if (entry.status === "todo") entry.status = "playing";
+    applyTemporalDefaults(entry, "status");
+    touchGame(gameId);
+    addHistory({
+      type: "session",
+      label: `Session notée : ${game?.title || gameId}`,
+      gameId,
+      saga: game?.saga || "",
+      detail: today
+    });
+    persist();
+    render();
+    return;
+  }
+
   if (action === "batch-story" || action === "batch-hundred" || action === "batch-reset") {
     const snapshot = createUndoSnapshot();
     const games = app.allGames.filter((game) => game.saga === sagaName);
@@ -346,6 +375,8 @@ function handleCatalogClick(event) {
         const entry = ensureProgress(app.state, game.id);
         entry.status = "done";
         entry.completion = action === "batch-story" ? "story" : "hundred";
+        applyTemporalDefaults(entry, "status");
+        applyTemporalDefaults(entry, "completion");
         touchGame(game.id);
       }
     }
@@ -374,14 +405,21 @@ function handleCatalogChange(event) {
   if (field === "status") {
     entry.status = target.value;
     if (entry.status === "done" && entry.completion === "none") entry.completion = "story";
+    applyTemporalDefaults(entry, "status");
   }
 
   if (field === "priority") entry.priority = target.value;
+  if (field === "target") entry.target = target.value;
   if (field === "platform") entry.platform = target.value;
+  if (field === "ownedPlatform") entry.ownedPlatform = target.value;
+  if (field === "edition") entry.edition = target.value;
+  if (field === "dlcCompletion") entry.dlcCompletion = target.value;
+  if (field === "dlcNotes") entry.dlcNotes = target.value;
   if (field === "owned") entry.owned = target.checked;
   if (field === "hours") entry.hours = target.value;
   if (field === "rating") entry.rating = target.value;
   if (field === "notes") entry.notes = target.value;
+  if (["startDate", "finishDate", "hundredDate", "abandonedDate", "lastSessionDate"].includes(field)) entry[field] = target.value;
   touchGame(gameId);
   addHistory({
     type: field || "change",
@@ -392,7 +430,7 @@ function handleCatalogChange(event) {
   });
 
   persist();
-  if (["status", "priority", "owned"].includes(field)) render();
+  if (["status", "priority", "owned", "target", "dlcCompletion", "startDate", "finishDate", "hundredDate", "abandonedDate", "lastSessionDate"].includes(field)) render();
 }
 
 function handleCatalogInput(event) {
@@ -400,7 +438,7 @@ function handleCatalogInput(event) {
   const gameId = target.dataset.gameId;
   if (!gameId) return;
   const field = target.dataset.field;
-  if (!["platform", "hours", "rating", "notes"].includes(field)) return;
+  if (!["platform", "ownedPlatform", "edition", "hours", "rating", "notes", "dlcNotes"].includes(field)) return;
   const entry = ensureProgress(app.state, gameId);
   entry[field] = target.value;
   touchGame(gameId);
@@ -458,6 +496,17 @@ function addProfile() {
   persist({ backup: false });
   refreshCatalog();
   showToast(`Profil créé : ${name.trim()}`);
+}
+
+async function copySyncPayload() {
+  const payload = JSON.stringify(createExportPayload(app.state), null, 2);
+  try {
+    await navigator.clipboard.writeText(payload);
+    showToast("Sauvegarde de synchronisation copiée");
+  } catch {
+    exportData(getContext());
+    showToast("Clipboard indisponible, export JSON lancé");
+  }
 }
 
 function setActiveTab(tab) {
@@ -553,11 +602,21 @@ function fieldLabel(field) {
   return {
     status: "Statut",
     priority: "Priorité",
+    target: "Objectif",
     platform: "Plateforme",
+    ownedPlatform: "Plateforme possédée",
+    edition: "Édition",
+    dlcCompletion: "DLC",
+    dlcNotes: "Notes DLC",
     owned: "Possédé",
     hours: "Heures",
     rating: "Note",
-    notes: "Notes"
+    notes: "Notes",
+    startDate: "Commencé le",
+    finishDate: "Terminé le",
+    hundredDate: "100% le",
+    abandonedDate: "Abandonné le",
+    lastSessionDate: "Dernière session"
   }[field] || field || "";
 }
 

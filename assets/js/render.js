@@ -2,15 +2,21 @@ import { DEFAULT_FILTERS, SCOPE_LABELS, SORT_LABELS, STATUS_LABELS } from "./con
 import { getProfiles, getProgress, listBackups } from "./state.js";
 import { escapeHtml, formatHoursShort } from "./utils.js";
 import { getGameStats, getHltbStats } from "./stats.js";
+import { getBacklogItems, getBacklogSummary } from "./backlog.js";
+import { getTimelineEvents } from "./timeline.js";
+import { buildAdvancedStats } from "./advanced-stats.js";
 import {
   backupListTemplate,
+  backlogListTemplate,
   dashboardCard,
   diagnosticsTemplate,
   gameTemplate,
   historyListTemplate,
+  metricListTemplate,
   sagaTemplate,
   statBar,
-  statTemplate
+  statTemplate,
+  timelineListTemplate
 } from "./templates.js";
 import { buildDiagnostics } from "./diagnostics.js";
 import { getNextBacklogGame, getVisibleGames, getVisibleSagas, sortGames } from "./filters.js";
@@ -22,6 +28,8 @@ export function renderApp(context) {
   renderActiveFilters(context);
   renderCatalog(context, visibleSagas);
   renderFlatGames(context, visibleSagas);
+  renderBacklog(context);
+  renderTimeline(context);
   renderStatsDashboard(context);
   renderProfiles(context);
   renderHistory(context);
@@ -42,6 +50,7 @@ export function renderStats(context) {
     statTemplate(`${stats.hundred}`, "à 100%"),
     statTemplate(`${stats.playing}`, "en cours"),
     statTemplate(`${stats.hours}`, "heures notées"),
+    statTemplate(formatHoursShort(hltbStats.remainingTarget), "restant objectif HLTB"),
     statTemplate(formatHoursShort(hltbStats.remainingComplete), "restant 100% HLTB"),
     statTemplate(formatHoursShort(hltbStats.totalComplete), "catalogue 100% HLTB")
   ].join("");
@@ -128,6 +137,26 @@ export function renderFlatGames(context, visibleSagas) {
     : `<div class="empty">Aucun jeu ne correspond aux filtres actifs.</div>`;
 }
 
+export function renderBacklog(context) {
+  const { allGames, refs, state } = context;
+  if (!refs.backlogList) return;
+  const items = getBacklogItems(allGames, state);
+  const summary = getBacklogSummary(allGames, state);
+  refs.backlogSummary.innerHTML = [
+    dashboardCard(summary.total, "cibles actives"),
+    dashboardCard(summary.ownedNotStarted, "possédés non lancés"),
+    dashboardCard(summary.highPriority, "prioritaires"),
+    dashboardCard(formatHoursShort(summary.remaining), "restant objectif")
+  ].join("");
+  refs.backlogList.innerHTML = backlogListTemplate(items.slice(0, 80));
+}
+
+export function renderTimeline(context) {
+  if (!context.refs.timelinePanel) return;
+  const events = getTimelineEvents(context.allGames, context.state, { limit: 100 });
+  context.refs.timelinePanel.innerHTML = timelineListTemplate(events);
+}
+
 export function renderProfiles(context) {
   const { refs, state } = context;
   if (!refs.profileSelect) return;
@@ -146,6 +175,7 @@ export function renderStatsDashboard(context) {
   const actionable = allGames.filter((game) => game.scope !== "upcoming");
   const stats = getGameStats(actionable, state);
   const hltbStats = getHltbStats(actionable, state);
+  const advanced = buildAdvancedStats(catalog, allGames, state);
   const categories = catalog.map((category) => {
     const games = category.sagas.flatMap((saga) => saga.games).filter((game) => game.scope !== "upcoming");
     return { name: category.category, stats: getGameStats(games, state) };
@@ -162,6 +192,8 @@ export function renderStatsDashboard(context) {
         ${dashboardCard(stats.hundred, "Completions 100%")}
         ${dashboardCard(stats.playing, "Jeux en cours")}
         ${dashboardCard(`${stats.average}%`, "Progression moyenne")}
+        ${dashboardCard(advanced.totals.ownedNotStarted, "Possédés non lancés")}
+        ${dashboardCard(formatHoursShort(hltbStats.remainingTarget), "Restant objectif HLTB")}
         ${dashboardCard(formatHoursShort(hltbStats.remainingComplete), "Restant HLTB 100%")}
         ${dashboardCard(formatHoursShort(hltbStats.totalComplete), "Catalogue HLTB 100%")}
         ${dashboardCard(stats.hours, "Heures notées")}
@@ -188,6 +220,39 @@ export function renderStatsDashboard(context) {
       </div>
       <div class="dashboard-cards">
         ${statusCounts.map((item) => dashboardCard(item.count, item.label)).join("")}
+      </div>
+    </section>
+    <section class="view-panel">
+      <div class="panel-head">
+        <div>
+          <h3>Plateformes suivies</h3>
+          <p>Basé sur la plateforme jouée ou possédée renseignée dans les fiches.</p>
+        </div>
+      </div>
+      <div class="metric-list">
+        ${metricListTemplate(advanced.byPlatform.slice(0, 12).map((item) => ({ label: item.label, value: item.stats.total, stats: item.stats })), (value, item) => `${value} jeux · ${item.stats.average}%`)}
+      </div>
+    </section>
+    <section class="view-panel">
+      <div class="panel-head">
+        <div>
+          <h3>Décennies</h3>
+          <p>Répartition du catalogue par période de sortie.</p>
+        </div>
+      </div>
+      <div class="metric-list">
+        ${metricListTemplate(advanced.byDecade.map((item) => ({ label: item.label, value: item.stats.total, stats: item.stats })), (value, item) => `${value} jeux · ${item.stats.average}%`)}
+      </div>
+    </section>
+    <section class="view-panel">
+      <div class="panel-head">
+        <div>
+          <h3>Temps restant par genre</h3>
+          <p>Temps HLTB calculé selon l'objectif choisi sur chaque jeu.</p>
+        </div>
+      </div>
+      <div class="metric-list">
+        ${metricListTemplate(advanced.remainingByGenre.slice(0, 12).map((item) => ({ label: item.label, value: item.remaining })), (value) => formatHoursShort(value))}
       </div>
     </section>
   `;

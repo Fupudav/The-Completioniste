@@ -1,6 +1,7 @@
 export const STORAGE_KEY = "completion-saga-tracker-v1";
 export const BACKUP_STORAGE_KEY = "completion-saga-tracker-backups-v1";
-export const STATE_VERSION = 3;
+export const STATE_VERSION = 4;
+export const BACKUP_FORMAT_VERSION = 2;
 export const MAX_BACKUPS = 12;
 export const DEFAULT_PROFILE_ID = "default";
 export const DEFAULT_PROFILE_NAME = "Moi";
@@ -19,6 +20,21 @@ export const COMPLETION = {
   story: { label: "Histoire", score: 55, long: "Histoire principale" },
   side: { label: "Annexes", score: 80, long: "Histoire + annexes" },
   hundred: { label: "100%", score: 100, long: "Completion totale" }
+};
+
+export const TARGET_LABELS = {
+  story: "Histoire",
+  side: "Annexes",
+  hundred: "100%"
+};
+
+export const DLC_LABELS = {
+  none: "Aucun DLC",
+  owned: "DLC possédés",
+  story: "DLC histoire",
+  side: "DLC annexes",
+  hundred: "DLC 100%",
+  skipped: "DLC ignorés"
 };
 
 export const SCOPE_LABELS = {
@@ -65,9 +81,19 @@ export const DEFAULT_PROGRESS = {
   next: false,
   owned: false,
   priority: "normal",
+  target: "hundred",
   platform: "",
+  ownedPlatform: "",
+  edition: "",
+  dlcCompletion: "none",
+  dlcNotes: "",
   hours: "",
   rating: "",
   notes: "",
+  startDate: "",
+  finishDate: "",
+  hundredDate: "",
+  abandonedDate: "",
+  lastSessionDate: "",
   updatedAt: ""
 };

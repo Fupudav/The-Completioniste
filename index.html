@@ -111,6 +111,14 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v16H6z"></path><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h4"></path></svg>
           Jeux
         </button>
+        <button class="tab-btn" type="button" data-tab="backlog" aria-selected="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"></path><path d="M4 12h10"></path><path d="M4 18h7"></path><path d="m16 15 2 2 4-5"></path></svg>
+          Backlog
+        </button>
+        <button class="tab-btn" type="button" data-tab="timeline" aria-selected="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5l3 2"></path><path d="M3 12a9 9 0 1 0 9-9"></path><path d="M3 4v6h6"></path></svg>
+          Timeline
+        </button>
         <button class="tab-btn" type="button" data-tab="stats" aria-selected="false">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5"></path><path d="M8 17v-6"></path><path d="M13 17V7"></path><path d="M18 17v-3"></path><path d="M4 19h17"></path></svg>
           Stats
@@ -189,6 +197,33 @@
         </div>
       </section>
 
+      <section class="app-view" data-view="backlog" aria-label="Backlog">
+        <div class="stats-dashboard">
+          <section class="view-panel">
+            <div class="panel-head">
+              <div>
+                <h3>Backlog priorisé</h3>
+                <p>Prochaines cibles selon priorité, possession, statut et temps HLTB restant.</p>
+              </div>
+            </div>
+            <div class="dashboard-cards" id="backlogSummary"></div>
+          </section>
+          <section class="backlog-list" id="backlogList" aria-live="polite"></section>
+        </div>
+      </section>
+
+      <section class="app-view" data-view="timeline" aria-label="Timeline">
+        <div class="view-panel">
+          <div class="panel-head">
+            <div>
+              <h3>Timeline</h3>
+              <p>Commencés, terminés, 100%, abandonnés, dernières sessions et historique récent.</p>
+            </div>
+          </div>
+          <div class="timeline-list" id="timelinePanel"></div>
+        </div>
+      </section>
+
       <section class="app-view" data-view="stats" aria-label="Statistiques">
         <div class="stats-dashboard" id="statsDashboard"></div>
       </section>
@@ -203,6 +238,7 @@
               </div>
             </div>
             <p class="settings-warning">La progression est locale : vider les données du navigateur, changer d'appareil ou utiliser un autre navigateur peut la rendre inaccessible. Crée un snapshot ou exporte le JSON avant toute opération risquée.</p>
+            <p class="settings-note">Sync téléphone/PC sans compte : utilise “Copier sync” ou “Exporter” sur l'appareil source, puis “Importer” sur l'autre appareil. Le fichier contient les profils, dates, DLC, overrides HLTB et une version de schéma.</p>
             <div class="settings-actions">
               <button class="btn primary" id="settingsAddGameBtn" type="button">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
@@ -211,6 +247,10 @@
               <button class="btn" id="settingsExportBtn" type="button">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
                 Exporter
+              </button>
+              <button class="btn" id="copySyncBtn" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7h11v14H8z"></path><path d="M5 17H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v1"></path></svg>
+                Copier sync
               </button>
               <label class="btn" for="importFile">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21V9"></path><path d="m7 14 5-5 5 5"></path><path d="M5 3h14"></path></svg>

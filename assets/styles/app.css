@@ -891,7 +891,7 @@ details.game-details summary {
 
 .detail-grid {
   display: grid;
-  grid-template-columns: 110px 110px 140px minmax(220px, 1fr);
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
   gap: 9px;
   padding-top: 9px;
 }
@@ -976,7 +976,7 @@ dialog::backdrop {
   top: 0;
   z-index: 6;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 8px;
   margin: 0 0 14px;
   padding: 8px;
@@ -1057,6 +1057,102 @@ dialog::backdrop {
 .flat-game-list {
   display: grid;
   gap: 8px;
+}
+
+.backlog-list {
+  display: grid;
+  gap: 10px;
+}
+
+.backlog-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(150px, auto);
+  gap: 14px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fffaf2;
+  box-shadow: 0 8px 22px rgba(38, 32, 23, .06);
+}
+
+.backlog-item strong {
+  display: block;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.backlog-item span {
+  color: var(--muted);
+  font-size: .82rem;
+  line-height: 1.35;
+}
+
+.backlog-metrics {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+}
+
+.backlog-metrics strong {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.timeline-list,
+.metric-list {
+  display: grid;
+  gap: 9px;
+}
+
+.timeline-item {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fbfcf8;
+}
+
+.timeline-item time {
+  color: var(--accent);
+  font-size: .82rem;
+  font-weight: 800;
+}
+
+.timeline-item strong,
+.timeline-item span {
+  display: block;
+}
+
+.timeline-item span {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: .82rem;
+  line-height: 1.35;
+}
+
+.metric-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 220px) minmax(0, 1fr) minmax(86px, auto);
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fbfcf8;
+}
+
+.metric-row strong {
+  font-size: .86rem;
+}
+
+.metric-row span {
+  color: var(--muted);
+  font-size: .82rem;
+  text-align: right;
 }
 
 .stats-dashboard,
@@ -1254,6 +1350,7 @@ dialog::backdrop {
 }
 
 .settings-note {
+  margin: 0 0 12px;
   color: var(--muted);
   font-size: .86rem;
   line-height: 1.45;
@@ -1319,16 +1416,19 @@ dialog::backdrop {
 
 @media (max-width: 1180px) {
   .app-shell {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
   }
 
   aside {
     min-height: auto;
     max-height: none;
     position: static;
+    order: 2;
   }
 
   main {
+    order: 1;
     padding: 20px;
   }
 
@@ -1368,7 +1468,7 @@ dialog::backdrop {
 
 
   .app-tabs {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     position: static;
   }
 
@@ -1378,9 +1478,18 @@ dialog::backdrop {
   }
 
   .profile-tools,
+  .backlog-item,
+  .metric-row,
+  .timeline-item,
   .history-item,
   .backup-item {
     grid-template-columns: 1fr;
+  }
+
+  .backlog-metrics,
+  .metric-row span {
+    justify-items: start;
+    text-align: left;
   }
 
   .stat-bar {

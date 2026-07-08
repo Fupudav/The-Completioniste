@@ -3,6 +3,7 @@ import { getProgress } from "./state.js";
 import { acronym } from "./utils.js";
 import { firstYear } from "./catalog.js";
 import { getRemainingHltbSeconds, getSagaHltbSeconds, getSagaStats } from "./stats.js";
+import { getBacklogItems } from "./backlog.js";
 
 export function createDefaultFilters() {
   return { ...DEFAULT_FILTERS };
@@ -47,11 +48,7 @@ export function sortGames(games, filters, state) {
 }
 
 export function getNextBacklogGame(games, state) {
-  return games
-    .filter((game) => game.scope !== "upcoming")
-    .map((game) => ({ game, score: nextBacklogScore(game, state) }))
-    .filter((item) => item.score > 0)
-    .sort((a, b) => b.score - a.score || a.game.title.localeCompare(b.game.title, "fr"))[0]?.game || null;
+  return getBacklogItems(games, state, { limit: 1 })[0]?.game || null;
 }
 
 function gameMatchesFilters(game, filters, state, query) {
@@ -104,19 +101,4 @@ function sagaLastUpdated(saga, state) {
 
 function sagaRemainingSeconds(saga, state) {
   return saga.games.reduce((sum, game) => sum + getRemainingHltbSeconds(game, state), 0);
-}
-
-function nextBacklogScore(game, state) {
-  const entry = getProgress(state, game.id);
-  if (entry.status === "done" || entry.status === "dropped" || entry.completion === "hundred") return 0;
-  const remainingHours = getRemainingHltbSeconds(game, state) / 3600;
-  const priority = { high: 300, normal: 160, low: 50 }[entry.priority] || 160;
-  const status = { playing: 500, paused: 180, todo: 120 }[entry.status] || 0;
-  const timeFit = remainingHours ? Math.max(0, 180 - Math.min(remainingHours, 180)) : 40;
-  return priority
-    + status
-    + timeFit
-    + (entry.next ? 900 : 0)
-    + (entry.favorite ? 80 : 0)
-    + (entry.owned ? 90 : 0);
 }
