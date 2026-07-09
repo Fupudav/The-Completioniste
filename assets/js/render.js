@@ -21,20 +21,53 @@ import {
 import { buildDiagnostics } from "./diagnostics.js";
 import { getNextBacklogGame, getVisibleGames, getVisibleSagas, sortGames } from "./filters.js";
 
+const FLAT_GAME_LIMIT = 240;
+
 export function renderApp(context) {
-  const visibleSagas = getVisibleSagas(context.catalog, context.filters, context.state);
   renderStats(context);
   renderSidebar(context);
   renderActiveFilters(context);
-  renderCatalog(context, visibleSagas);
-  renderFlatGames(context, visibleSagas);
-  renderBacklog(context);
-  renderTimeline(context);
-  renderStatsDashboard(context);
-  renderProfiles(context);
-  renderHistory(context);
-  renderBackups(context);
-  renderDiagnostics(context);
+  renderActiveView(context);
+}
+
+export function renderActiveView(context) {
+  renderView(context, context.activeTab);
+}
+
+export function renderView(context, tab = context.activeTab) {
+  const viewContext = tab === context.activeTab ? context : { ...context, activeTab: tab };
+
+  if (tab === "sagas") {
+    renderCatalog(viewContext, getVisibleSagas(viewContext.catalog, viewContext.filters, viewContext.state));
+    return;
+  }
+
+  if (tab === "games") {
+    renderFlatGames(viewContext, getVisibleSagas(viewContext.catalog, viewContext.filters, viewContext.state));
+    return;
+  }
+
+  if (tab === "backlog") {
+    renderBacklog(viewContext);
+    return;
+  }
+
+  if (tab === "timeline") {
+    renderTimeline(viewContext);
+    return;
+  }
+
+  if (tab === "stats") {
+    renderStatsDashboard(viewContext);
+    return;
+  }
+
+  if (tab === "settings") {
+    renderProfiles(viewContext);
+    renderHistory(viewContext);
+    renderBackups(viewContext);
+    renderDiagnostics(viewContext);
+  }
 }
 
 export function renderStats(context) {
@@ -127,13 +160,21 @@ export function renderCatalog(context, visibleSagas) {
 
 export function renderFlatGames(context, visibleSagas) {
   const games = sortGames(getVisibleGames(visibleSagas), context.filters, context.state);
-  context.refs.flatCatalogMeta.textContent = `${games.length} jeux`;
+  const displayedGames = games.slice(0, FLAT_GAME_LIMIT);
+  context.refs.flatCatalogMeta.textContent = games.length > FLAT_GAME_LIMIT
+    ? `${games.length} jeux · ${FLAT_GAME_LIMIT} affichés · affine les filtres`
+    : `${games.length} jeux`;
   if (context.activeTab !== "games") {
     context.refs.flatGameList.innerHTML = "";
     return;
   }
-  context.refs.flatGameList.innerHTML = games.length
-    ? games.map((game) => gameTemplate(game, context)).join("")
+  context.refs.flatGameList.innerHTML = displayedGames.length
+    ? [
+        games.length > FLAT_GAME_LIMIT
+          ? `<div class="empty small">La vue Jeux affiche les ${FLAT_GAME_LIMIT} premiers résultats pour rester fluide. Utilise la recherche ou les filtres pour trouver un jeu précis.</div>`
+          : "",
+        displayedGames.map((game) => gameTemplate(game, context, { details: false })).join("")
+      ].join("")
     : `<div class="empty">Aucun jeu ne correspond aux filtres actifs.</div>`;
 }
 

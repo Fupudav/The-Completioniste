@@ -20,7 +20,7 @@ import {
 } from "./state.js";
 import { applyTemporalDefaults } from "./timeline.js";
 import { escapeAttr, escapeHtml } from "./utils.js";
-import { renderApp } from "./render.js";
+import { renderActiveView, renderApp, renderView } from "./render.js";
 import {
   addCustomGame,
   exportData,
@@ -38,10 +38,12 @@ const app = {
   catalog: [],
   allGames: [],
   filters: createDefaultFilters(),
-  activeTab: "sagas"
+  activeTab: "sagas",
+  renderedTabs: new Set()
 };
 
 let toastTimer = null;
+let preRenderTimer = null;
 
 const refs = {
   statGrid: document.querySelector("#statGrid"),
@@ -470,7 +472,7 @@ function openNextBacklog() {
   app.filters = createDefaultFilters();
   app.filters.search = game.title.toLowerCase();
   syncFilterControls();
-  setActiveTab("games");
+  setActiveTab("games", { forceRender: true });
   showToast(`Prochaine cible : ${game.title}`);
 }
 
@@ -478,7 +480,7 @@ function showPlayingGames() {
   app.filters = createDefaultFilters();
   app.filters.status = "playing";
   syncFilterControls();
-  setActiveTab("games");
+  setActiveTab("games", { forceRender: true });
   showToast("Jeux en cours affichés");
 }
 
@@ -509,8 +511,10 @@ async function copySyncPayload() {
   }
 }
 
-function setActiveTab(tab) {
-  app.activeTab = tab || "sagas";
+function setActiveTab(tab, options = {}) {
+  const nextTab = tab || "sagas";
+  const changed = app.activeTab !== nextTab;
+  app.activeTab = nextTab;
   refs.tabButtons.forEach((button) => {
     const active = button.dataset.tab === app.activeTab;
     button.classList.toggle("active", active);
@@ -519,7 +523,7 @@ function setActiveTab(tab) {
   refs.views.forEach((view) => {
     view.classList.toggle("active", view.dataset.view === app.activeTab);
   });
-  render();
+  if (changed || options.forceRender) renderActiveTab({ force: options.forceRender });
 }
 
 function toggleVisibleSagas() {
@@ -621,6 +625,41 @@ function fieldLabel(field) {
 }
 
 function render() {
+  app.renderedTabs.clear();
   renderApp(getContext());
+  app.renderedTabs.add(app.activeTab);
   renderQuickActions();
+  schedulePreRender();
+}
+
+function renderActiveTab(options = {}) {
+  if (!options.force && app.renderedTabs.has(app.activeTab)) {
+    renderQuickActions();
+    return;
+  }
+  renderActiveView(getContext());
+  app.renderedTabs.add(app.activeTab);
+  renderQuickActions();
+}
+
+function schedulePreRender() {
+  if (preRenderTimer) {
+    if ("cancelIdleCallback" in window) window.cancelIdleCallback(preRenderTimer);
+    else clearTimeout(preRenderTimer);
+  }
+
+  const run = () => {
+    preRenderTimer = null;
+    const context = getContext();
+    for (const tab of ["backlog", "timeline", "stats", "settings"]) {
+      if (!app.renderedTabs.has(tab)) {
+        renderView(context, tab);
+        app.renderedTabs.add(tab);
+      }
+    }
+  };
+
+  preRenderTimer = "requestIdleCallback" in window
+    ? window.requestIdleCallback(run, { timeout: 1800 })
+    : setTimeout(run, 350);
 }
